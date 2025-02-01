@@ -5,7 +5,7 @@ import { render } from "@react-email/components";
 import { getEmailTemplate } from "@/emails";
 import { handleEmailFire } from "@/emails/helper";
 
-const ORG_DOMAIN = "nith.ac.in";
+const ORG_DOMAIN = "your-domain.com";
 
 const payloadSchema = z.object({
   template_key: z.string(),
