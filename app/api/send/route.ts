@@ -18,21 +18,6 @@ const payloadSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const identityKey = request.headers.get("X-IDENTITY-KEY") || "";
-    if (identityKey !== IDENTITY_KEY) {
-      console.log(
-        "Missing or invalid SERVER_IDENTITY",
-        "received:",
-        identityKey
-      );
-      return NextResponse.json(
-        {
-          error: "Missing or invalid SERVER_IDENTITY",
-          data: null,
-        },
-        { status: 403 }
-      );
-    }
 
     const body = await request.json();
 
