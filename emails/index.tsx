@@ -14,8 +14,8 @@ export function getEmailTemplate({
   template_key: string;
   payload: Record<string, string | number | string[] | number[]>;
 }): React.ReactElement | null {
-  if (email_templates.has(template_key)) {
-    const EmailComponent = email_templates.get(template_key);
+  const EmailComponent = email_templates.get(template_key);
+  if (EmailComponent) {
     return (
       <EmailWrapper>
         <EmailComponent payload={payload} />

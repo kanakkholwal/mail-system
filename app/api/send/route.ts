@@ -53,6 +53,16 @@ export async function POST(request: NextRequest) {
     console.log("Payload", payload);
     const EmailTemplate = getEmailTemplate({ template_key, payload });
 
+    if(!EmailTemplate) {
+      return NextResponse.json(
+        {
+          error: "Invalid template key",
+          data: null,
+        },
+        { status: 400 }
+      );
+    }
+
     const emailHtml = await render(EmailTemplate);
     const response = await handleEmailFire(
       `College Platform <platform@${ORG_DOMAIN}>`,

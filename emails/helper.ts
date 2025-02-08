@@ -23,7 +23,6 @@ export const handleEmailFire = async (from: string, data: Payload) => {
 
   return await transporter.sendMail({
     from: from, // 'Sender Name <sender@server.com>'
-    to: data.to,
     ...data,
   });
 };
