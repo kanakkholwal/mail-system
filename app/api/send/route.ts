@@ -4,8 +4,8 @@ import { render } from "@react-email/components";
 
 import { getEmailTemplate } from "@/emails";
 import { handleEmailFire } from "@/emails/helper";
+import {SENDER,IDENTITY_KEY} from "@/project.config";
 
-const ORG_DOMAIN = "your-domain.com";
 
 const payloadSchema = z.object({
   template_key: z.string(),
@@ -19,7 +19,7 @@ const payloadSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const identityKey = request.headers.get("X-IDENTITY-KEY") || "";
-    if (identityKey !== process.env.SERVER_IDENTITY) {
+    if (identityKey !== IDENTITY_KEY) {
       console.log(
         "Missing or invalid SERVER_IDENTITY",
         "received:",
@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       );
     }
     const { template_key, targets, subject, payload } = res.data;
+    // save this in logger database
     console.log("Sending email to", targets);
     console.log("Subject", subject);
     console.log("Template", template_key);
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     const emailHtml = await render(EmailTemplate);
     const response = await handleEmailFire(
-      `College Platform <platform@${ORG_DOMAIN}>`,
+      SENDER,
       {
         to: targets,
         subject: subject,

@@ -1,0 +1,15 @@
+import { z } from "zod";
+
+const envVariables = z.object({
+    IDENTITY_KEY: z.string(),
+    MAIL_EMAIL: z.string().email(),
+    MAIL_PASSWORD: z.string(),
+});
+
+envVariables.parse(process.env);
+
+declare global {
+    namespace NodeJS {
+        interface ProcessEnv extends z.infer<typeof envVariables> { }
+    }
+}
