@@ -1,4 +1,9 @@
+
 # Instructions
+
+## Documentation
+
+- Check here [https://nexonauts.mintlify.app/templates/mail-system](https://nexonauts.mintlify.app/templates/mail-system)
 
 1. Define environment variables in `.env` file.
 
@@ -29,3 +34,5 @@ curl -X POST http://localhost:3000/api/send
 ## License
 
 MIT License
+
+D

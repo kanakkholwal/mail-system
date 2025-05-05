@@ -12,9 +12,24 @@ import {
   Text,
 } from "@react-email/components";
 
-const baseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "";
+
+
+const organization = {
+  name: "Nexonauts",
+  tagline: "Think different",
+  logo: "https://nexonauts.com/assets/logo.svg",
+  address: "Nexonauts, 1234 Street Name, City, State, Zip",
+  url: "https://nexonauts.com",
+  email: "contact@nexonauts.com",
+  phone: "+1 (123) 456-7890",
+  socials:{
+    twitter: "https://twitter.com/kanakkholwal",
+    linkedin: "https://linkedin.com/in/kanakkholwal",
+    instagram: "https://instagram.com/kanakkholwal",
+    github: "https://github.com/kanakkholwal"
+  }
+}
+
 
 export default function EmailWrapper({
   children,
@@ -41,42 +56,53 @@ export default function EmailWrapper({
               <Row>
                 <Column className="w-[80%]">
                   <Img
-                    alt="React Email logo"
+                    alt={organization.name}
                     height="42"
-                    src="https://react.email/static/logo-without-background.png"
+                    src={organization.logo}
                   />
                 </Column>
                 <Column align="right">
                   <Row align="right">
                     <Column>
-                      <Link href="https://x.com/kanakkholwal">
+                      <Link href={organization.socials.twitter}>
                         <Img
                           alt="X"
                           className="mx-[4px]"
                           height="36"
-                          src="https://react.email/static/x-logo.png"
+                          src="https://cdn-icons-png.flaticon.com/512/5968/5968958.png"
                           width="36"
                         />
                       </Link>
                     </Column>
                     <Column>
-                      <Link href="https://instagram.com/kanakkholwal">
+                      <Link href={organization.socials.linkedin}>
+                        <Img
+                          alt="X"
+                          className="mx-[4px]"
+                          height="36"
+                          src="https://cdn-icons-png.flaticon.com/512/3536/3536505.png"
+                          width="36"
+                        />
+                      </Link>
+                    </Column>
+                    <Column>
+                      <Link href={organization.socials.instagram}>
                         <Img
                           alt="Instagram"
                           className="mx-[4px]"
                           height="36"
-                          src={`${baseUrl}/static/github-logo.png`}
+                          src="https://cdn-icons-png.flaticon.com/512/15713/15713420.png"
                           width="36"
                         />
                       </Link>
                     </Column>
                     <Column>
-                      <Link href="https://github.com/kanakkholwal">
+                      <Link href={organization.socials.github}>
                         <Img
                           alt="Github"
                           className="mx-[4px]"
                           height="36"
-                          src="https://react.email/static/github-logo.png"
+                          src="https://cdn-icons-png.flaticon.com/512/1051/1051377.png"
                           width="36"
                         />
                       </Link>
@@ -92,19 +118,19 @@ export default function EmailWrapper({
                 <tr className="w-full">
                   <td align="center">
                     <Img
-                      alt="React Email logo"
+                      alt={organization.name}
                       height="42"
-                      src="https://react.email/static/logo-without-background.png"
+                      src={organization.logo}
                     />
                   </td>
                 </tr>
                 <tr className="w-full">
                   <td align="center">
                     <Text className="my-[8px] text-[16px] font-semibold leading-[24px] text-gray-900">
-                      College Platform
+                      {organization.name}
                     </Text>
                     <Text className="mb-0 mt-[4px] text-[16px] leading-[24px] text-gray-500">
-                      Think different
+                      {organization.tagline}
                     </Text>
                   </td>
                 </tr>
