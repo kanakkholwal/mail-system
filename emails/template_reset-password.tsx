@@ -10,14 +10,10 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import { z } from "zod";
-const payloadSchema = z.record(
-  z.union([z.string(), z.number(), z.array(z.string()), z.array(z.number())])
-);
+import type {EmailPayload } from "@/types/schema";
 
-type Payload = z.infer<typeof payloadSchema>;
 
-export function ResetPasswordEmail({ payload }: { payload: Payload }) {
+export function ResetPasswordEmail({ payload }: { payload: EmailPayload }) {
   const email = payload.email as string;
   const userName = payload.name as string;
   const previewText = `Hi ${userName}, Click the button below to reset your password.`;
