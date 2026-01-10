@@ -1,37 +1,69 @@
+import { z } from "zod";
 
+/**
+ * -----------------------------------------------------------------------------
+ * Environment Configuration
+ * -----------------------------------------------------------------------------
+ * We use Zod to enforce strict validation of environment variables.
+ * This ensures the application fails fast if required config is missing.
+ */
 
-export const APPLICATION_NAME = "Nexonauts";
-export const ORG_DOMAIN = "nexonauts.com";
-export const ORG_NAME = "Nexonauts";
+const envSchema = z.object({
+  // Security
+  SERVER_IDENTITY: z.string().min(1, "SERVER_IDENTITY is required for API security"),
 
+  // SMTP Configuration
+  SMTP_HOST: z.string().min(1, "SMTP_HOST is required").optional().default("smtp-relay.sendinblue.com"),
+  MAIL_EMAIL: z.string().email("MAIL_EMAIL must be a valid email address").default("noreply@nexonauts.com"),
+  MAIL_PASSWORD: z.string().min(1, "MAIL_PASSWORD is required").default(""),
 
-export const SENDER_EMAIL = `noreply@${ORG_DOMAIN}`;
-export const SENDER = `${APPLICATION_NAME} <${SENDER_EMAIL}>`;
+  // Optional: Node Environment
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+});
 
+// Parse process.env - will throw a detailed error if validation fails
+const env = envSchema.parse(process.env);
 
-
-export const IDENTITY_KEY = process.env.SERVER_IDENTITY;
-
-if(!IDENTITY_KEY) {
-    throw new Error("Missing SERVER_IDENTITY in environment variables");
-}
-
-const SMTP_HOST = process.env.SMTP_HOST;
-const MAIL_EMAIL = process.env.MAIL_EMAIL;
-const MAIL_PASSWORD = process.env.MAIL_PASSWORD;
-
-
-if(!MAIL_EMAIL || !MAIL_PASSWORD || !SMTP_HOST) {
-    throw new Error("Missing MAIL_EMAIL or MAIL_PASSWORD in environment variables");
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv extends z.infer<typeof envSchema> { }
+  }
 }
 
 
 export const SMTP_SETTINGS = {
-    host: SMTP_HOST ||"smtp-relay.sendinblue.com", // "smtp.gmail.com", //replace with your email provider
-    port: 587,
-    // secure: false, // true for 465, false for other ports
-    auth: {
-        user: MAIL_EMAIL,
-        pass: MAIL_PASSWORD,
-    },
-}
+  host: env.SMTP_HOST || "smtp-relay.sendinblue.com", // "smtp.gmail.com", //replace with your email provider,
+  port: 587, // Standard submission port. Use 465 for SSL/TLS if needed.
+  // secure: false, // true for 465, false for other ports
+  auth: {
+    user: env.MAIL_EMAIL,
+    pass: env.MAIL_PASSWORD,
+  },
+  // Recommended for robust delivery:
+  // tls: {
+  //   ciphers: "SSLv3",
+  //   rejectUnauthorized: env.NODE_ENV === "production",
+  // },
+} as const;
+
+/**
+ * -----------------------------------------------------------------------------
+ * UNIFIED PROJECT CONFIG
+ * -----------------------------------------------------------------------------
+ * 
+ */
+export const config = {
+  app: {
+    name: "Nexonauts",
+    org: "Nexonauts",
+    domain: "nexonauts.com",
+  },
+  email: {
+    sender: "Nexonauts <noreply@nexonauts.com>",
+    address: "noreply@nexonauts.com",
+    smtp: SMTP_SETTINGS,
+  },
+  security: {
+    identityKey: env.SERVER_IDENTITY,
+  },
+} as const;

@@ -1,7 +1,3 @@
-export const metadata = {
-  title: "Mail server",
-  description: "Mail server",
-};
 
 export default function RootLayout({
   children,
