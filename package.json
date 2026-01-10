@@ -6,7 +6,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md}\"",
+    "build:package": "node scripts/build-package.js",
+    "publish:npm": "npm run build:package && cd package && npm publish --access public",
+    "publish:github": "npm run build:package && cd package && npm publish --registry=https://npm.pkg.github.com",
+    "pack:local": "npm run build:package && cd package && npm pack"
   },
   "dependencies": {
     "@react-email/components": "0.0.31",
@@ -25,5 +29,8 @@
     "eslint-config-next": "16.1.1",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@9.15.2"
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "bun@1.3.0"
 }

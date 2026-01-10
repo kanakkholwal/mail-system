@@ -1,0 +1,219 @@
+name: Publish Package
+
+# Trigger workflow on:
+# 1. Push of version tags (e.g., v1.0.0)
+# 2. Manual workflow dispatch from GitHub UI
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+        type: string
+      registry:
+        description: 'Registry to publish to'
+        required: true
+        type: choice
+        options:
+          - npm
+          - github
+          - both
+        default: 'npm'
+
+# Permissions needed for the workflow
+permissions:
+  contents: write  # For creating releases
+  packages: write  # For publishing to GitHub Packages
+  id-token: write  # For npm provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # ====================================================================
+      # Setup
+      # ====================================================================
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper versioning
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.3.0
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # ====================================================================
+      # Version Management
+      # ====================================================================
+      
+      - name: Extract version from tag
+        if: github.event_name == 'push'
+        id: extract_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION"
+
+      - name: Update package version
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          cd emails
+          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+
+      - name: Update package version (from tag)
+        if: github.event_name == 'push'
+        run: |
+          cd emails
+          npm version ${{ steps.extract_version.outputs.version }} --no-git-tag-version
+
+      # ====================================================================
+      # Build Package
+      # ====================================================================
+      
+      - name: Build package
+        run: |
+          bun run build:package
+          echo "✅ Package built successfully"
+
+      - name: Verify build output
+        run: |
+          ls -la package/
+          ls -la package/dist/
+          echo "Build verification complete"
+
+      # ====================================================================
+      # Publish to NPM Registry
+      # ====================================================================
+      
+      - name: Setup Node.js for NPM
+        if: |
+          github.event_name == 'push' ||
+          github.event.inputs.registry == 'npm' ||
+          github.event.inputs.registry == 'both'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Publish to NPM
+        if: |
+          github.event_name == 'push' ||
+          github.event.inputs.registry == 'npm' ||
+          github.event.inputs.registry == 'both'
+        run: |
+          cd package
+          npm publish --provenance --access public
+          echo "✅ Published to NPM Registry"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # ====================================================================
+      # Publish to GitHub Packages
+      # ====================================================================
+      
+      - name: Setup Node.js for GitHub Packages
+        if: |
+          github.event.inputs.registry == 'github' ||
+          github.event.inputs.registry == 'both'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@kanakkholwal'
+
+      - name: Publish to GitHub Packages
+        if: |
+          github.event.inputs.registry == 'github' ||
+          github.event.inputs.registry == 'both'
+        run: |
+          cd package
+          npm publish
+          echo "✅ Published to GitHub Packages"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ====================================================================
+      # Create GitHub Release
+      # ====================================================================
+      
+      - name: Generate changelog
+        if: github.event_name == 'push'
+        id: changelog
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            CHANGELOG="Initial release"
+          else
+            CHANGELOG=$(git log $PREV_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.extract_version.outputs.version }}
+          body: |
+            ## Changes in this release
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## Installation
+            
+            ```bash
+            npm install @kanakkholwal/mailer@${{ steps.extract_version.outputs.version }}
+            ```
+            
+            ## Documentation
+            
+            See the [README](https://github.com/${{ github.repository }}/blob/main/README.md) for usage instructions.
+          draft: false
+          prerelease: false
+
+      # ====================================================================
+      # Notifications & Summary
+      # ====================================================================
+      
+      - name: Job summary
+        if: success()
+        run: |
+          echo "## 🎉 Package Published Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "**Version:** ${{ steps.extract_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Registry:** NPM" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Version:** ${{ github.event.inputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Registry:** ${{ github.event.inputs.registry }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "npm install @kanakkholwal/mailer" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "## ❌ Publishing Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the workflow logs for details." >> $GITHUB_STEP_SUMMARY
