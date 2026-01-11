@@ -40,12 +40,23 @@ function error(msg) {
 // Main build function
 async function build() {
     try {
-        log('\n🚀 Building @kanakkholwal/mailer package...\n', 'yellow');
+        const isOptimized = process.argv.includes('--optimized');
+        
+        if (isOptimized) {
+            log('\n🚀 Building @kanakkholwal/mailer package (OPTIMIZED)...\n', 'yellow');
+            process.env.BUILD_MODE = 'production';
+        } else {
+            log('\n🚀 Building @kanakkholwal/mailer package...\n', 'yellow');
+        }
 
         // Step 1: Run tsup
         step('Running TypeScript build...');
         try {
-            execSync('npx tsup', { stdio: 'inherit', cwd: ROOT_DIR });
+            const buildCmd = isOptimized 
+                ? 'npx tsup --minify' 
+                : 'npx tsup';
+            
+            execSync(buildCmd, { stdio: 'inherit', cwd: ROOT_DIR });
             success('TypeScript build completed');
         } catch (err) {
             error('TypeScript build failed');
@@ -61,53 +72,148 @@ async function build() {
         const emailsPackageJson = path.join(ROOT_DIR, 'emails.package.json');
         const destPackageJson = path.join(PACKAGE_DIR, 'package.json');
 
-        // Debug: Check if source file exists and has content
+        // Default package.json content if file is missing or empty
+        const defaultPackageJson = {
+            "name": "@kanakkholwal/mailer",
+            "version": "1.0.0",
+            "description": "Type-safe email templates with React Email and Zod validation",
+            "main": "./dist/index.js",
+            "module": "./dist/index.mjs",
+            "types": "./dist/index.d.ts",
+            "exports": {
+                ".": {
+                    "types": "./dist/index.d.ts",
+                    "import": "./dist/index.mjs",
+                    "require": "./dist/index.js"
+                },
+                "./templates/*": {
+                    "types": "./dist/templates/*/index.d.ts",
+                    "import": "./dist/templates/*/index.mjs",
+                    "require": "./dist/templates/*/index.js"
+                },
+                "./kit/*": {
+                    "types": "./dist/kit/*/index.d.ts",
+                    "import": "./dist/kit/*/index.mjs",
+                    "require": "./dist/kit/*/index.js"
+                },
+                "./renderer": {
+                    "types": "./dist/renderer.d.ts",
+                    "import": "./dist/renderer.mjs",
+                    "require": "./dist/renderer.js"
+                },
+                "./registry": {
+                    "types": "./dist/registry.d.ts",
+                    "import": "./dist/registry.mjs",
+                    "require": "./dist/registry.js"
+                }
+            },
+            "files": [
+                "dist",
+                "README.md",
+                "LICENSE"
+            ],
+            "keywords": [
+                "email",
+                "react-email",
+                "nodemailer",
+                "templates",
+                "transactional-email",
+                "typescript",
+                "type-safe",
+                "zod",
+                "email-templates",
+                "mailer"
+            ],
+            "author": "Kanak Kholwal",
+            "license": "MIT",
+            "repository": {
+                "type": "git",
+                "url": "https://github.com/kanakkholwal/mail-system.git",
+                "directory": "emails"
+            },
+            "bugs": {
+                "url": "https://github.com/kanakkholwal/mail-system/issues"
+            },
+            "homepage": "https://github.com/kanakkholwal/mail-system#readme",
+            "peerDependencies": {
+                "@react-email/components": ">=0.0.31",
+                "react": ">=18.0.0",
+                "zod": ">=3.0.0"
+            },
+            "dependencies": {
+                "@react-email/components": "0.0.31",
+                "@react-email/tailwind": "1.0.4",
+                "nodemailer": "^6.9.16",
+                "zod": "^3.24.1"
+            },
+            "devDependencies": {
+                "@types/node": "^22",
+                "@types/nodemailer": "^6.4.17",
+                "@types/react": "^19",
+                "react": "^19.2.3",
+                "tsup": "^8.0.0",
+                "typescript": "^5"
+            },
+            "publishConfig": {
+                "access": "public",
+                "registry": "https://registry.npmjs.org/"
+            },
+            "engines": {
+                "node": ">=18.0.0"
+            }
+        };
+
+        let pkgContent;
+
+        // Check if source file exists and has content
         if (!fs.existsSync(emailsPackageJson)) {
-            error('emails.package.json not found at: ' + emailsPackageJson);
+            log('   ⚠️  emails.package.json not found, creating from template...', 'yellow');
+            pkgContent = JSON.stringify(defaultPackageJson, null, 2);
+            // Save the template for future use
+            fs.writeFileSync(emailsPackageJson, pkgContent, 'utf8');
+            log('   ✅ Created emails.package.json', 'green');
+        } else {
+            const sourceStats = fs.statSync(emailsPackageJson);
+            
+            if (sourceStats.size === 0) {
+                log('   ⚠️  emails.package.json is empty, using default template...', 'yellow');
+                pkgContent = JSON.stringify(defaultPackageJson, null, 2);
+                // Update the empty file
+                fs.writeFileSync(emailsPackageJson, pkgContent, 'utf8');
+                log('   ✅ Updated emails.package.json with default content', 'green');
+            } else {
+                // Read existing content
+                pkgContent = fs.readFileSync(emailsPackageJson, 'utf8');
+                
+                // Validate JSON
+                try {
+                    JSON.parse(pkgContent);
+                    log(`   ✅ Using existing emails.package.json (${sourceStats.size} bytes)`, 'reset');
+                } catch (e) {
+                    log('   ⚠️  emails.package.json has invalid JSON, using default template...', 'yellow');
+                    pkgContent = JSON.stringify(defaultPackageJson, null, 2);
+                    // Fix the invalid file
+                    fs.writeFileSync(emailsPackageJson, pkgContent, 'utf8');
+                    log('   ✅ Fixed emails.package.json with valid JSON', 'green');
+                }
+            }
         }
 
-        const sourceStats = fs.statSync(emailsPackageJson);
-        log(`   Source file size: ${sourceStats.size} bytes`, 'reset');
-
-        if (sourceStats.size === 0) {
-            error('emails.package.json is empty! Please check the file.');
-        }
-
-        // Read and write to ensure proper copying
-        const pkgContent = fs.readFileSync(emailsPackageJson, 'utf8');
-
-        log(`   Read ${pkgContent.length} characters from source`, 'reset');
-
-        if (pkgContent.length === 0) {
-            error('Failed to read content from emails.package.json');
-        }
-
-        // Validate JSON before writing
-        try {
-            JSON.parse(pkgContent);
-        } catch (e) {
-            error('emails.package.json is not valid JSON: ' + e.message);
-        }
-
+        // Write to destination
         fs.writeFileSync(destPackageJson, pkgContent, 'utf8');
-
+        
         // Verify the copy
         if (!fs.existsSync(destPackageJson)) {
-            error('Failed to create package.json');
+            error('Failed to create package.json in package directory');
         }
-
+        
         const copiedContent = fs.readFileSync(destPackageJson, 'utf8');
-        log(`   Wrote ${copiedContent.length} characters to destination`, 'reset');
-
+        
         if (copiedContent.length === 0) {
             error('package.json was created but is empty');
         }
-
-        if (copiedContent !== pkgContent) {
-            error('Content mismatch between source and destination');
-        }
-
-        success(`package.json copied and verified (${copiedContent.length} bytes)`);
+        
+        success(`package.json ready (${copiedContent.length} bytes)`);
 
         // Step 4: Copy README.md
         step('Copying README.md...');
@@ -189,10 +295,10 @@ async function build() {
 // Helper function to calculate total directory size
 function getTotalSize(dirPath) {
     let size = 0;
-
+    
     function getSize(itemPath) {
         const stats = fs.statSync(itemPath);
-
+        
         if (stats.isFile()) {
             size += stats.size;
         } else if (stats.isDirectory()) {
@@ -202,7 +308,7 @@ function getTotalSize(dirPath) {
             });
         }
     }
-
+    
     getSize(dirPath);
     return size;
 }

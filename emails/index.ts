@@ -1,5 +1,5 @@
 /**
- * @kanakkholwal/mailer - Type-safe email templates
+ * mailer-easy - Type-safe email templates
  * 
  * A comprehensive email templating library built with React Email,
  * Zod validation, and Nodemailer integration.
@@ -12,7 +12,7 @@
 /**
  * Render email templates to HTML strings
  */
-export { renderEmail, getEmailTemplate } from './renderer';
+export { getEmailTemplate, renderEmail } from './renderer';
 
 /**
  * Template registry with all available email templates
@@ -87,7 +87,7 @@ export { Layout } from './kit/components/layout';
 /**
  * Typography components for consistent text styling
  */
-export { H1, H2, BodyText, SubText } from './kit/components/typography';
+export { BodyText, H1, H2, SubText } from './kit/components/typography';
 
 
 // ============================================================================
@@ -119,4 +119,4 @@ export { z } from 'zod';
 /**
  * Re-export nodemailer types
  */
-export type { Transporter, SendMailOptions } from 'nodemailer';
+export type { SendMailOptions, Transporter } from 'nodemailer';

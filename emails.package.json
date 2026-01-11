@@ -1,5 +1,5 @@
 {
-    "name": "@kanakkholwal/mailer",
+    "name": "mailer-easy",
     "version": "1.0.0",
     "description": "Type-safe email templates with React Email and Zod validation",
     "main": "./dist/index.js",

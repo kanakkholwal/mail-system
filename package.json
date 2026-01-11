@@ -7,8 +7,9 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md}\"",
-    "build:package": "node scripts/build-package.js",
-    "publish:npm": "npm run build:package && cd package && npm publish --access public",
+    "build:package": "node scripts/build-package.js  --optimized",
+    "analyze:package": "node scripts/analyze-package.js",
+    "publish:npm": "npm run build:package && cd package && npm publish --access=public",
     "publish:github": "npm run build:package && cd package && npm publish --registry=https://npm.pkg.github.com",
     "pack:local": "npm run build:package && cd package && npm pack"
   },

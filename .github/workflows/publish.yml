@@ -178,7 +178,7 @@ jobs:
             ## Installation
             
             ```bash
-            npm install @kanakkholwal/mailer@${{ steps.extract_version.outputs.version }}
+            npm install mailer-easy@${{ steps.extract_version.outputs.version }}
             ```
             
             ## Documentation
@@ -208,7 +208,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Installation" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "npm install @kanakkholwal/mailer" >> $GITHUB_STEP_SUMMARY
+          echo "npm install mailer-easy" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify on failure
