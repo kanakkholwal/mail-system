@@ -7,7 +7,7 @@ export function proxy(request: NextRequest) {
 
     // This ensures that only authorized services (or your backend) can trigger emails.
     if (pathname.startsWith("/api")) {
-        const requestIdentityKey = request.headers.get("X-IDENTITY-KEY");
+        const requestIdentityKey = request.headers.get("X-Authorization");
         const serverIdentityKey = appConfig.security.identityKey;
 
         // Strict equality check for the API key
@@ -19,7 +19,7 @@ export function proxy(request: NextRequest) {
             return NextResponse.json(
                 {
                     error: "Unauthorized",
-                    message: "Missing or invalid X-IDENTITY-KEY header."
+                    message: "Missing or invalid X-Authorization header."
                 },
                 { status: 401 }
             );

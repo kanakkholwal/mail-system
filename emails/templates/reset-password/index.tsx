@@ -1,18 +1,13 @@
+import { config } from "@/project.config";
 import { Button } from "@emails/kit/components/button";
 import { Footer } from "@emails/kit/components/footer";
 import { Header } from "@emails/kit/components/header";
 import { Layout } from "@emails/kit/components/layout";
 import { BodyText, H1, SubText } from "@emails/kit/components/typography";
-import { Branding } from "@emails/kit/types";
 import { Link, Section } from "@react-email/components";
 import { ResetPasswordProps } from "./schema";
 
-const defaultBranding: Branding = {
-    name: "Nexonauts",
-    logoUrl: "https://nexonauts.com/assets/logo.svg",
-    websiteUrl: "https://nexonauts.com",
-    primaryColor: "#007291",
-};
+
 
 export const ResetPasswordEmail = ({
     name,
@@ -21,7 +16,7 @@ export const ResetPasswordEmail = ({
     validMinutes,
     branding: brandingOverride,
 }: ResetPasswordProps) => {
-    const branding = { ...defaultBranding, ...brandingOverride };
+    const branding = { ...config.defaultBranding, ...brandingOverride };
 
     return (
         <Layout previewText="Reset your password">

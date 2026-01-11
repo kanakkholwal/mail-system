@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Branding } from "./emails/kit/types";
 
 /**
  * -----------------------------------------------------------------------------
@@ -58,6 +59,12 @@ export const config = {
     org: "Nexonauts",
     domain: "nexonauts.com",
   },
+  defaultBranding: {
+    name: "Nexonauts",
+    logoUrl: "https://nexonauts.com/logo-square.png",
+    websiteUrl: "https://nexonauts.com",
+    primaryColor: "#00940aff",
+  } as Branding,
   email: {
     sender: "Nexonauts <noreply@nexonauts.com>",
     address: "noreply@nexonauts.com",

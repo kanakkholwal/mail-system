@@ -1,23 +1,13 @@
+import { config } from "@/project.config";
 import { Button } from "@emails/kit/components/button";
 import { Footer } from "@emails/kit/components/footer";
 import { Header } from "@emails/kit/components/header";
 import { Layout } from "@emails/kit/components/layout";
 import { BodyText, H1, SubText } from "@emails/kit/components/typography";
-import { Branding } from "@emails/kit/types";
 import { Section } from "@react-email/components";
 import { WelcomeEmailProps } from "./schema";
 
-// Default branding fallback - This should ideally come from a global config
-const defaultBranding: Branding = {
-    name: "Nexonauts",
-    logoUrl: "https://nexonauts.com/assets/logo.svg",
-    websiteUrl: "https://nexonauts.com",
-    primaryColor: "#007291",
-    socials: [
-        { platform: "twitter", url: "https://twitter.com/nexonauts" },
-        { platform: "github", url: "https://github.com/nexonauts" },
-    ],
-};
+
 
 export const WelcomeEmail = ({
     name,
@@ -25,7 +15,7 @@ export const WelcomeEmail = ({
     email,
     branding: brandingOverride,
 }: WelcomeEmailProps) => {
-    const branding = { ...defaultBranding, ...brandingOverride };
+    const branding = { ...config.defaultBranding, ...brandingOverride };
 
     return (
         <Layout previewText={`Welcome to ${branding.name}! Please verify your email.`}>
