@@ -1,38 +1,25 @@
 {
-  "name": "mail-server",
+  "name": "mail-system",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md}\"",
-    "build:package": "node scripts/build-package.js  --optimized",
-    "analyze:package": "node scripts/analyze-package.js",
-    "publish:npm": "npm run build:package && cd package && npm publish --access=public",
-    "publish:github": "npm run build:package && cd package && npm publish --registry=https://npm.pkg.github.com",
-    "pack:local": "npm run build:package && cd package && npm pack"
+  "workspaces": ["packages/*", "apps/*"],
+  "packageManager": "bun@1.3.0",
+  "engines": {
+    "node": ">=20.11"
   },
-  "dependencies": {
-    "@react-email/components": "0.0.31",
-    "@react-email/tailwind": "1.0.4",
-    "next": "^16.1.1",
-    "nodemailer": "^6.9.16",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "zod": "^3.24.1",
-    "zod-to-json-schema": "^3.25.1"
+  "scripts": {
+    "dev": "bun run --filter '*' --parallel dev",
+    "build": "bun run --filter '@better-mailer/emails' build && bun run --filter '@better-mailer/delivery' build && bun run --filter './apps/*' build",
+    "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun run --filter '*' test",
+    "render": "bun run --filter '@better-mailer/emails' render",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md}\""
   },
   "devDependencies": {
-    "@types/node": "^22",
-    "@types/nodemailer": "^6.4.17",
-    "@types/react": "^19",
-    "eslint": "9",
-    "eslint-config-next": "16.1.1",
-    "typescript": "^5"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "packageManager": "bun@1.3.0"
+    "@types/node": "^22.19.0",
+    "eslint": "^10.8.0",
+    "eslint-config-next": "16.2.12",
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2"
+  }
 }

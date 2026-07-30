@@ -3,7 +3,8 @@
 package/*
 .npmrc
 # dependencies
-/node_modules
+node_modules
+
 /pnpm-lock.yaml
 
 ./bun.lock
@@ -23,7 +24,8 @@ package/*
 # next.js
 /.next/
 /out/
-
+dist-preview
+dist
 # production
 /build
 

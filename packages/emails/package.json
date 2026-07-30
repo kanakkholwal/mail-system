@@ -1,0 +1,91 @@
+{
+  "name": "@better-mailer/emails",
+  "version": "2.0.0",
+  "description": "Conversion-focused email and document templates built with Unlayer Elements. One React tree renders email HTML, a hosted web page, and print-ready PDF.",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./kit": {
+      "types": "./dist/kit/index.d.ts",
+      "import": "./dist/kit/index.js",
+      "require": "./dist/kit/index.cjs"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "import": "./dist/registry.js",
+      "require": "./dist/registry.cjs"
+    },
+    "./render": {
+      "types": "./dist/render.d.ts",
+      "import": "./dist/render.js",
+      "require": "./dist/render.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup && tsc -p tsconfig.build.json",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "render": "tsx scripts/render-all.ts",
+    "publish:npm": "bun run build && npm publish --access=public"
+  },
+  "keywords": [
+    "unlayer",
+    "unlayer-elements",
+    "email-templates",
+    "transactional-email",
+    "pdf",
+    "react",
+    "zod",
+    "typescript",
+    "BuiltWithElements"
+  ],
+  "author": "Kanak Kholwal",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kanakkholwal/mail-system.git",
+    "directory": "packages/emails"
+  },
+  "bugs": {
+    "url": "https://github.com/kanakkholwal/mail-system/issues"
+  },
+  "homepage": "https://github.com/kanakkholwal/mail-system#readme",
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "dependencies": {
+    "@unlayer/react-elements": "^0.1.20",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "@types/react": "^19.2.17",
+    "react": "^19.2.8",
+    "tsup": "^8.5.1",
+    "tsx": "^4.20.6",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=20.11"
+  }
+}
