@@ -17,9 +17,22 @@ const base = {
 afterEach(() => vi.unstubAllGlobals());
 
 function stubFetch(status: number, body: unknown) {
-  const spy = vi.fn(async () => new Response(JSON.stringify(body), { status }));
+  // Params are declared so mock.calls is typed and needs no cast at each use.
+  const spy = vi.fn(async (_url: string | URL | Request, _init?: RequestInit) =>
+    new Response(JSON.stringify(body), { status }),
+  );
   vi.stubGlobal('fetch', spy);
   return spy;
+}
+
+type FetchSpy = ReturnType<typeof stubFetch>;
+
+function sentBody(spy: FetchSpy): Record<string, unknown> {
+  return JSON.parse(String(spy.mock.calls[0]?.[1]?.body)) as Record<string, unknown>;
+}
+
+function sentHeaders(spy: FetchSpy): Record<string, string> {
+  return (spy.mock.calls[0]?.[1]?.headers ?? {}) as Record<string, string>;
 }
 
 describe('error classification', () => {
@@ -81,8 +94,7 @@ describe('resend transport', () => {
     const spy = stubFetch(200, { id: 'r-123' });
     const result = await resendTransport({ apiKey: 'key' }).send(base);
     expect(result.messageId).toBe('r-123');
-    const [, init] = spy.mock.calls[0] as [string, RequestInit];
-    const body = JSON.parse(String(init.body));
+    const body = sentBody(spy);
     expect(body.to).toEqual(['"Priya" <priya@example.com>']);
     expect(body.text).toBe('hi');
   });
@@ -90,8 +102,7 @@ describe('resend transport', () => {
   it('forwards the idempotency key as a header', async () => {
     const spy = stubFetch(200, { id: 'r-1' });
     await resendTransport({ apiKey: 'key' }).send({ ...base, idempotencyKey: 'abc' });
-    const [, init] = spy.mock.calls[0] as [string, RequestInit];
-    expect((init.headers as Record<string, string>)['idempotency-key']).toBe('abc');
+    expect(sentHeaders(spy)['idempotency-key']).toBe('abc');
   });
 
   it('marks a 429 retryable and a 422 permanent', async () => {
@@ -112,15 +123,13 @@ describe('postmark transport', () => {
     const spy = stubFetch(200, { MessageID: 'pm-9' });
     const result = await postmarkTransport({ serverToken: 't', messageStream: 'broadcast' }).send(base);
     expect(result.messageId).toBe('pm-9');
-    const [, init] = spy.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body)).MessageStream).toBe('broadcast');
+    expect(sentBody(spy).MessageStream).toBe('broadcast');
   });
 
   it('defaults to the outbound stream', async () => {
     const spy = stubFetch(200, { MessageID: 'pm-1' });
     await postmarkTransport({ serverToken: 't' }).send(base);
-    const [, init] = spy.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(String(init.body)).MessageStream).toBe('outbound');
+    expect(sentBody(spy).MessageStream).toBe('outbound');
   });
 });
 

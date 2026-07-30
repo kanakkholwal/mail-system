@@ -1,14 +1,19 @@
+import abandonedCart from './templates/abandoned-cart/index.js';
 import cardExpiring from './templates/card-expiring/index.js';
 import invoiceIssued from './templates/invoice-issued/index.js';
 import magicLink from './templates/magic-link/index.js';
+import mentionNotification from './templates/mention-notification/index.js';
 import newDeviceLogin from './templates/new-device-login/index.js';
+import orderConfirmed from './templates/order-confirmed/index.js';
 import otpCode from './templates/otp-code/index.js';
 import passwordChanged from './templates/password-changed/index.js';
 import paymentFailed from './templates/payment-failed/index.js';
 import paymentReceipt from './templates/payment-receipt/index.js';
 import referralInvite from './templates/referral-invite/index.js';
 import resetPassword from './templates/reset-password/index.js';
+import shippingUpdate from './templates/shipping-update/index.js';
 import subscriptionCancelled from './templates/subscription-cancelled/index.js';
+import teamInvite from './templates/team-invite/index.js';
 import trialEnding from './templates/trial-ending/index.js';
 import usageLimit from './templates/usage-limit/index.js';
 import weeklyDigest from './templates/weekly-digest/index.js';
@@ -37,6 +42,11 @@ export const registry = {
   winback: winback,
   referral_invite: referralInvite,
   weekly_digest: weeklyDigest,
+  team_invite: teamInvite,
+  mention_notification: mentionNotification,
+  order_confirmed: orderConfirmed,
+  shipping_update: shippingUpdate,
+  abandoned_cart: abandonedCart,
 } as const;
 
 export type TemplateKey = keyof typeof registry;
