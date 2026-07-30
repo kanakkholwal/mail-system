@@ -1,0 +1,27 @@
+{
+  "name": "@better-mailer/studio",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Gallery and payload workbench for the Elements template catalogue.",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@better-mailer/emails": "workspace:*",
+    "@unlayer/react-elements": "^0.1.20",
+    "next": "16.2.12",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^7.0.2"
+  }
+}

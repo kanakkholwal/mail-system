@@ -1,0 +1,110 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-radius: var(--radius);
+  transition: transform 160ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+  .card:hover {
+    transform: none;
+  }
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.card:hover .thumb {
+  border-color: var(--faint);
+}
+
+.thumb iframe {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 640px;
+  height: 1700px;
+  border: 0;
+  /* Renders at true email width, then scales, so type keeps its real proportions. */
+  transform: translateX(-50%) scale(0.46);
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+.scrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 96px;
+  background: linear-gradient(to bottom, transparent, var(--surface));
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.subject {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.45;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.action,
+.noAction {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.action::before {
+  content: '→ ';
+  color: var(--faint);
+}
+
+.noAction {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.tag {
+  padding: 3px 7px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+

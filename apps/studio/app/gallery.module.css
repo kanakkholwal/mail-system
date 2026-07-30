@@ -1,0 +1,143 @@
+.hero {
+  padding: 88px 0 56px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.headline {
+  max-width: 15ch;
+  font-size: clamp(38px, 6vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.033em;
+  line-height: 1.04;
+}
+
+.lede {
+  max-width: 62ch;
+  margin-top: 22px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--body);
+}
+
+.stats {
+  display: flex;
+  gap: 48px;
+  margin: 40px 0 0;
+}
+
+.stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+
+.stats dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stats dd {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.filterBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--canvas) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: none;
+  padding: 5px 11px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: capitalize;
+  white-space: nowrap;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+
+.chip:hover {
+  color: var(--ink);
+  border-color: var(--hairline);
+}
+
+.chip[aria-current] {
+  color: var(--surface);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.divider {
+  flex: none;
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: var(--hairline);
+}
+
+.genre {
+  padding: 44px 0 8px;
+}
+
+.genreHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.genreTitle {
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.grid {
+  display: grid;
+  gap: 28px 24px;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+}
+
+.empty {
+  padding: 80px 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    padding: 56px 0 40px;
+  }
+  .stats {
+    gap: 28px;
+  }
+  .stats dd {
+    font-size: 22px;
+  }
+}

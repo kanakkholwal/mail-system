@@ -39,7 +39,7 @@ probes do not, so a load balancer can reach them without a credential.
 ### Send
 
 ```bash
-curl -X POST http://localhost:8787/v1/send \
+curl -X POST http://localhost:30001/v1/send \
   -H "Authorization: Bearer $SERVICE_API_KEY" \
   -H 'Content-Type: application/json' \
   -H 'Idempotency-Key: invoice-4192-attempt-1' \

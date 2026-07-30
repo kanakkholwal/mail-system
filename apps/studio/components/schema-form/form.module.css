@@ -1,0 +1,56 @@
+.form {
+  padding: 20px 22px 40px;
+}
+
+.section {
+  min-width: 0;
+}
+
+.settings {
+  margin-top: 8px;
+  border-top: 1px solid var(--hairline);
+}
+
+.settings summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 0;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.settings summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings summary::before {
+  content: '+';
+  width: 14px;
+  color: var(--faint);
+  font-family: var(--mono);
+}
+
+.settings[open] summary::before {
+  content: '–';
+}
+
+.settings summary:hover {
+  color: var(--ink);
+}
+
+.badge {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-family: var(--mono);
+  font-size: 10.5px;
+}
+
+.settingsBody {
+  padding-top: 6px;
+}

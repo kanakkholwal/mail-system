@@ -1,0 +1,255 @@
+.layout {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  min-height: calc(100dvh - 57px);
+}
+
+.rail {
+  border-right: 1px solid var(--hairline);
+  background: var(--surface);
+  overflow-y: auto;
+  max-height: calc(100dvh - 57px);
+  position: sticky;
+  top: 0;
+}
+
+.railHead {
+  padding: 24px 22px 18px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.back::before {
+  content: '← ';
+}
+
+.back:hover {
+  color: var(--ink);
+}
+
+.title {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.022em;
+}
+
+.description {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.badge {
+  padding: 2px 7px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10.5px;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.segmented {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--hairline-soft);
+}
+
+.segmented button {
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgb(11 11 15 / 8%);
+}
+
+.action {
+  flex: none;
+  padding: 5px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--ink);
+  border-color: var(--faint);
+}
+
+.problem {
+  padding: 9px 24px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.inbox {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 2px 14px;
+  align-items: baseline;
+  padding: 13px 24px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.inboxFrom {
+  grid-row: span 2;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inboxSubject {
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inboxPreview {
+  color: var(--muted);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.canvas {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 28px 24px 40px;
+  overflow: auto;
+  background: var(--canvas);
+  transition: opacity 140ms ease;
+}
+
+.canvas[data-mode='document'] {
+  background: color-mix(in srgb, var(--canvas) 60%, var(--hairline));
+}
+
+.stale {
+  opacity: 0.55;
+}
+
+.frame {
+  height: 100%;
+  min-height: 640px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.plain {
+  width: 100%;
+  max-width: 900px;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--body);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}
+
+.stats {
+  display: flex;
+  gap: 24px;
+  padding: 10px 24px;
+  border-top: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.stats b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.warn {
+  color: var(--warning);
+}
+
+@media (max-width: 1020px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .rail {
+    position: static;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .frame {
+    min-height: 520px;
+  }
+}
