@@ -5,10 +5,12 @@ import { fonts, palette, radius } from '../tokens.js';
 function parts(values: Record<string, unknown>) {
   const raw = Number(values.percent ?? 0);
   const pct = Math.max(0, Math.min(100, Number.isFinite(raw) ? raw : 0));
-  const tone = pct >= 90 ? palette.danger : pct >= 75 ? palette.warning : palette.success;
+  const auto = pct >= 90 ? palette.danger : pct >= 75 ? palette.warning : palette.success;
   return {
     pct,
-    tone: esc(values.color ?? tone),
+    // Truthiness, not ??: the tool's default `color` is an empty string, which
+    // ?? would happily accept and emit as `background-color:` with no value.
+    tone: values.color ? esc(values.color) : auto,
     label: values.label ? esc(values.label) : '',
     value: values.value ? esc(values.value) : `${Math.round(pct)}%`,
   };

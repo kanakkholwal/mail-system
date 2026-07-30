@@ -90,10 +90,10 @@ describe('accessibility and deliverability', () => {
 
   it.each(emailCases)('%s: body copy never uses the borders-only grey', (_key, template) => {
     const html = renderEmail(template);
-    // palette.faint fails AA as text; it may only appear on border declarations.
-    for (const decl of html.match(/color:\s*#AEB4BF/gi) ?? []) {
-      expect(decl.toLowerCase()).toContain('border');
-    }
+    // palette.faint fails AA as text. The lookbehind keeps `background-color`
+    // and `border-left-color` out, since only a bare `color` sets type colour.
+    const asTextColour = html.match(new RegExp(`(?<![-a-z])color:\\s*${palette.faint}`, 'gi')) ?? [];
+    expect(asTextColour, `${palette.faint} must never colour text`).toHaveLength(0);
   });
 
   it.each(emailCases)('%s: has a non-trivial plain-text part', (_key, template) => {
