@@ -41,6 +41,20 @@ export class TemplateValidationError extends Error {
   }
 }
 
+export type RenderRule = 'unsupported_mode' | 'unsubscribe_required';
+
+/** A refusal by rule rather than by payload, so callers map it without matching on message text. */
+export class RenderRuleError extends Error {
+  constructor(
+    readonly key: string,
+    readonly rule: RenderRule,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'RenderRuleError';
+  }
+}
+
 const ROOTS = { email: Email, web: Page, document: Document } as const;
 
 /**
@@ -93,7 +107,9 @@ export function renderTemplate(
   const mode = options.mode ?? 'email';
 
   if (!template.meta.modes.includes(mode)) {
-    throw new Error(
+    throw new RenderRuleError(
+      template.meta.key,
+      'unsupported_mode',
       `Template "${template.meta.key}" does not support "${mode}" mode. Supported: ${template.meta.modes.join(', ')}.`,
     );
   }
@@ -103,7 +119,9 @@ export function renderTemplate(
   const props = parsed.data as BaseTemplateProps;
 
   if (template.meta.requiresUnsubscribe && !props.legal.unsubscribeUrl) {
-    throw new Error(
+    throw new RenderRuleError(
+      template.meta.key,
+      'unsubscribe_required',
       `Template "${template.meta.key}" is marketing-class and requires legal.unsubscribeUrl.`,
     );
   }

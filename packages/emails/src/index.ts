@@ -2,9 +2,11 @@ export { getTemplate, hasTemplate, listByGenre, listTemplates, registry, type Te
 export {
   renderTemplate,
   renderTemplateDesign,
+  RenderRuleError,
   TemplateValidationError,
   type RenderOptions,
   type RenderResult,
+  type RenderRule,
 } from './render.js';
 export { defineTemplate, GENRES, type AnyTemplate, type Genre, type Template, type TemplateMeta } from './template.js';
 export {
