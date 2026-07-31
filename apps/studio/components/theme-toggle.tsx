@@ -1,22 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { readTheme, THEME_EVENT, type StudioTheme } from '@/lib/use-theme';
 import styles from './theme-toggle.module.css';
 
-type Theme = 'light' | 'dark';
-
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme | undefined>(undefined);
+  const [theme, setTheme] = useState<StudioTheme | undefined>(undefined);
 
   useEffect(() => {
-    setTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+    setTheme(readTheme());
   }, []);
 
   const toggle = (): void => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    const next: StudioTheme = theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
     localStorage.setItem('bm-theme', next);
     setTheme(next);
+    // Gallery thumbnails are iframes: they re-request their own render on this.
+    window.dispatchEvent(new CustomEvent(THEME_EVENT));
   };
 
   return (

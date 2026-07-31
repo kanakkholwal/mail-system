@@ -10,6 +10,7 @@ import {
   type Genre,
   type RenderMode,
   type TemplateMeta,
+  type Theme,
 } from '@better-mailer/emails';
 import { z } from 'zod';
 import type { JsonValue, SchemaNode } from './json-schema';
@@ -73,12 +74,12 @@ export interface RenderOutcome {
   message?: string;
 }
 
-export function render(key: string, payload: unknown, mode: RenderMode): RenderOutcome {
+export function render(key: string, payload: unknown, mode: RenderMode, theme: Theme = 'auto'): RenderOutcome {
   const empty = { subject: '', previewText: '', html: '', text: '', bytes: 0 };
   if (!hasTemplate(key)) return { ...empty, ok: false, issues: [], message: `Unknown template "${key}".` };
 
   try {
-    const result = renderTemplate(getTemplate(key), payload, { mode });
+    const result = renderTemplate(getTemplate(key), payload, { mode, theme });
     return {
       ok: true,
       subject: result.subject,

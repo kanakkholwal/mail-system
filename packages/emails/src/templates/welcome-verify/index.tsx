@@ -1,18 +1,41 @@
 import type { ReactElement } from 'react';
 import {
-  band, CodeToken, divider, fallbackLink, focusedCta, focusedHeader, focusedHeadline, focusedLede,
-  focusedNote, focusedRule, footer, heading, label, small, space,
+  band, bandSplit, CodeSlab, fallbackLink, footer, heading, palette, recordCta, recordHeadline, recordLede,
+  recordMark, recordMasthead, recordNote, recordSection, small, space, text as bodyText,
 } from '../../kit/index.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
 import { welcomeVerifySchema, type WelcomeVerifyProps } from './schema.js';
+
+/**
+ * Steps are indexed with a mono numeral in its own column. The index is what
+ * turns three paragraphs into a sequence the reader can resume later.
+ */
+function step(index: number, title: string, body: string, last: boolean): ReactElement {
+  const numeral = bodyText(
+    `<span style="font-family:'Geist Mono',ui-monospace,Menlo,Consolas,monospace;font-size:22px;font-weight:600;color:${palette.muted};letter-spacing:-0.02em;">${String(index + 1).padStart(2, '0')}</span>`,
+    { gap: space.none, key: 'n' },
+  );
+  return bandSplit(
+    [numeral],
+    [heading(title, { gap: space.xxs, key: 't' }), small(body, { gap: space.none, key: 'b' })],
+    {
+      ratio: 'narrowWide',
+      noStackMobile: true,
+      gap: space.xs,
+      pt: space.none,
+      pb: last ? space.xl : space.lg,
+      key: `step-${index}`,
+    },
+  );
+}
 
 export default defineTemplate<WelcomeVerifyProps>({
   meta: {
     key: 'welcome_verify',
     name: 'Welcome and verify email',
     genre: 'auth',
-    description: 'A single centred act. Everything that is not the verify button is pushed below the fold.',
+    description: 'One act above the fold, then an indexed sequence of what the account is actually for.',
     modes: ['email', 'web'],
     primaryAction: 'Verify email address',
     requiresUnsubscribe: false,
@@ -34,23 +57,22 @@ export default defineTemplate<WelcomeVerifyProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const rows: ReactElement[] = [focusedHeader(ctx)];
+    const rows: ReactElement[] = recordMasthead(ctx, { stamp: 'Account · Verify address' });
 
     rows.push(
       band(
         [
-          // The headline always carries the action. A greeting in its place reads
-          // warmer and converts worse, because the reader has to hunt for the ask.
-          focusedHeadline('Confirm your email'),
-          focusedLede(
-            `${props.recipientName ? `${props.recipientName}, you` : 'You'} are one step from a working ${props.branding.name} workspace. Confirm this address and we will secure the account and switch on notifications.`,
+          // The headline carries the act. A greeting in its place reads warmer and
+          // converts worse, because the reader has to hunt for the ask.
+          recordHeadline('Confirm your email'),
+          recordMark(),
+          recordLede(
+            `${props.recipientName ? `${props.recipientName}, you` : 'You'} are one step from a working ${props.branding.name} workspace. Confirming this address secures the account and switches on notifications.`,
           ),
-          focusedCta(ctx, { label: 'Verify email address', href: props.verifyUrl }),
-          focusedNote(`Expires in ${props.expiresInHours} hours. Nobody else can use this link.`),
-          focusedRule(),
-          fallbackLink(ctx, props.verifyUrl, { align: 'center' }),
+          recordCta(ctx, { label: 'Verify email address', href: props.verifyUrl }),
+          recordNote(`Expires in ${props.expiresInHours} hours · Nobody else can use this link`),
         ],
-        { pt: space.none, pb: space.xl, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'act' },
       ),
     );
 
@@ -58,30 +80,32 @@ export default defineTemplate<WelcomeVerifyProps>({
       rows.push(
         band(
           [
-            label('Or enter this code', { align: 'center', key: 'cl', gap: space.sm }),
-            <CodeToken key="code" code={props.verifyCode} groupSize={3} containerPadding="0px" />,
+            <CodeSlab
+              key="code"
+              code={props.verifyCode}
+              groupSize={3}
+              stamp="Or type this code into the app"
+              meta={`Same ${props.expiresInHours}-hour window`}
+              containerPadding="0px"
+            />,
           ],
-          { pt: space.none, pb: space.xxl, key: 'code-band' },
+          { pt: space.none, pb: space.xl, gutter: false, key: 'code' },
         ),
       );
     }
 
     if (props.nextSteps.length > 0) {
-      const steps: ReactElement[] = [
-        divider({ gap: space.none, key: 'sd' }),
-        label('Once you are in', { key: 'sl', gap: space.md }),
-      ];
-      props.nextSteps.forEach((step, index) => {
-        steps.push(heading(step.title, { key: `st${index}`, gap: space.xxs }));
-        steps.push(
-          small(step.body, {
-            key: `sb${index}`,
-            gap: index === props.nextSteps.length - 1 ? space.none : space.md,
-          }),
-        );
+      rows.push(
+        band([...recordSection('Once you are in', 'st')], { pt: space.none, pb: space.md, key: 'steps-head' }),
+      );
+      props.nextSteps.forEach((s, index) => {
+        rows.push(step(index, s.title, s.body, index === props.nextSteps.length - 1));
       });
-      rows.push(band(steps, { pt: space.none, pb: space.xxl, key: 'steps' }));
     }
+
+    rows.push(
+      band([fallbackLink(ctx, props.verifyUrl)], { pt: space.none, pb: space.xxl, key: 'fallback' }),
+    );
 
     rows.push(...footer(ctx));
     return rows;

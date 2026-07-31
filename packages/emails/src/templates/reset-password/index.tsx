@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import {
-  band, Callout, DataList, fallbackLink, focusedCta, focusedHeader, focusedHeadline, focusedLede, focusedNote,
-  focusedRule, footer, label, panel, space,
+  band, Callout, fallbackLink, footer, recordCta, recordHeadline, recordLede, recordLog, recordMark,
+  recordMasthead, recordNote, recordSection, space, type LogRow,
 } from '../../kit/index.js';
 import { dateTime } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
@@ -13,7 +13,7 @@ export default defineTemplate<ResetPasswordProps>({
     key: 'reset_password',
     name: 'Password reset',
     genre: 'auth',
-    description: 'Single-action password reset with request provenance and an expiry window.',
+    description: 'Single-action reset with the request logged underneath, so an unrequested one is recognisable as such.',
     modes: ['email', 'web'],
     primaryAction: 'Set a new password',
     requiresUnsubscribe: false,
@@ -36,58 +36,49 @@ export default defineTemplate<ResetPasswordProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const rows: ReactElement[] = [focusedHeader(ctx)];
+    const rows: ReactElement[] = recordMasthead(ctx, { stamp: 'Security · Password reset' });
 
     rows.push(
       band(
         [
-          focusedHeadline('Reset your password'),
-          focusedLede(
-            `${props.recipientName ? `${props.recipientName}, someone` : 'Someone'} asked to reset the password on your ${props.branding.name} account. Choose a new one below.`,
+          recordHeadline('Reset your password'),
+          recordMark(),
+          recordLede(
+            `${props.recipientName ? `${props.recipientName}, someone` : 'Someone'} asked to reset the password on your ${props.branding.name} account. Your current password still works until you choose a new one.`,
           ),
-          focusedCta(ctx, { label: 'Set a new password', href: props.resetUrl }),
-          focusedNote(`Works once, expires in ${props.expiresInMinutes} minutes.`),
-          focusedRule(),
-          fallbackLink(ctx, props.resetUrl, { align: 'center' }),
+          recordCta(ctx, { label: 'Set a new password', href: props.resetUrl }),
+          recordNote(`Expires in ${props.expiresInMinutes} minutes · Works once · Every other session is signed out`),
         ],
-        { pt: space.none, pb: space.xl, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'act' },
       ),
     );
 
     if (props.request) {
       const { device, location, ipAddress, requestedAt } = props.request;
-      const detailRows = [
+      const log: LogRow[] = [
         requestedAt ? { key: 'Requested', value: dateTime(requestedAt, props.locale.tag) } : null,
         device ? { key: 'Device', value: device } : null,
         location ? { key: 'Location', value: location } : null,
-        ipAddress ? { key: 'IP address', value: ipAddress, mono: true } : null,
-      ].filter((row): row is { key: string; value: string; mono?: boolean } => row !== null);
+        ipAddress ? { key: 'IP address', value: ipAddress } : null,
+      ].filter((row): row is LogRow => row !== null);
 
-      if (detailRows.length > 0) {
-        rows.push(
-          panel(
-            [
-              label('Where this request came from', { key: 'rh', gap: space.sm }),
-              <DataList key="dl" rows={detailRows} containerPadding="0px" />,
-            ],
-            { key: 'provenance' },
-          ),
-        );
-      }
+      if (log.length > 0) rows.push(recordLog(log, { title: 'Where the request came from' }));
     }
 
     rows.push(
       band(
         [
+          ...recordSection('If it was not you'),
           <Callout
             key="warn"
             tone="warning"
-            title="Did not request this?"
-            body={`Your password has not changed and no action is needed. If you keep getting these, <a href="${props.branding.supportUrl ?? props.branding.websiteUrl}" style="color:inherit;text-decoration:underline;">tell our team</a> so we can secure the account.`}
-            containerPadding="0px"
+            title="Nothing has changed yet"
+            body={`A reset link on its own does not change anything. Ignore this and your password stays as it is. If they keep arriving, <a href="${props.branding.supportUrl ?? props.branding.websiteUrl}" style="color:inherit;text-decoration:underline;">tell our team</a> — someone is targeting the address.`}
+            containerPadding={`0px 0px ${space.lg} 0px`}
           />,
+          fallbackLink(ctx, props.resetUrl),
         ],
-        { pt: space.none, pb: space.xxl, key: 'warning' },
+        { pt: space.none, pb: space.xxl, key: 'guidance' },
       ),
     );
 

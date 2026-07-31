@@ -9,7 +9,7 @@ import {
   type DesignJSON,
 } from '@unlayer/react-elements';
 import type { Ctx } from './kit/context.js';
-import { headCss } from './kit/head-css.js';
+import { headCss, type Theme } from './kit/head-css.js';
 import { canvasColor, contentWidth, fonts, palette, type RenderMode } from './kit/tokens.js';
 import type { BaseTemplateProps } from './schema/common.js';
 import type { AnyTemplate } from './template.js';
@@ -18,6 +18,12 @@ export interface RenderOptions {
   mode?: RenderMode;
   /** Overrides the template's own subject line. */
   subject?: string;
+  /**
+   * `auto` ships the prefers-color-scheme block, which is what an inbox gets.
+   * `light` and `dark` pin the render, for previewing the half the reviewer's
+   * own OS is not currently set to.
+   */
+  theme?: Theme;
 }
 
 export interface RenderResult {
@@ -61,8 +67,8 @@ const ROOTS = { email: Email, web: Page, document: Document } as const;
  * Injects the stylesheet before </head>, leaving Elements' own document shell
  * (doctype, MSO conditionals, component CSS) untouched.
  */
-function injectHeadCss(html: string, mode: RenderMode): string {
-  const style = `<style type="text/css" data-bm="${mode}">\n${headCss(mode)}\n</style>\n`;
+function injectHeadCss(html: string, mode: RenderMode, theme: Theme): string {
+  const style = `<style type="text/css" data-bm="${mode}">\n${headCss(mode, theme)}\n</style>\n`;
   if (!html.includes('</head>')) {
     throw new Error(`injectHeadCss: no </head> in ${mode} output. Elements' shell changed.`);
   }
@@ -133,6 +139,7 @@ export function renderTemplate(
       ...(mode === 'email' ? {} : { fonts: [...fonts.webStylesheets] }),
     }),
     mode,
+    options.theme ?? 'auto',
   );
 
   return {

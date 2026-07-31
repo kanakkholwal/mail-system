@@ -7,9 +7,9 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "dev": "bun run --filter '*' --parallel dev",
-    "build:packages": "bun run --filter '@better-mailer/emails' build && bun run --filter '@better-mailer/delivery' build",
-    "build": "bun run build:packages && bun run --filter './apps/*' build",
+    "dev": "bun run build:packages && bun run --filter '*' --parallel dev",
+    "build:packages": "bun run --filter '@better-mailer/emails' build",
+    "build": "bun run build:packages && bun run --filter '@better-mailer/studio' build",
     "typecheck": "bun run --filter '*' typecheck",
     "test": "bun run --filter '*' test",
     "verify": "bun run build:packages && bun run typecheck && bun run test",

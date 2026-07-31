@@ -5,9 +5,14 @@
   "type": "module",
   "description": "Gallery and payload workbench for the Elements template catalogue.",
   "scripts": {
+    "ensure:emails": "test -f ../../packages/emails/dist/index.js || bun run --filter '@better-mailer/emails' build",
+    "predev": "bun run ensure:emails",
     "dev": "next dev --turbopack",
+    "prebuild": "bun run ensure:emails",
     "build": "next build",
+    "prestart": "bun run ensure:emails",
     "start": "next start",
+    "pretypecheck": "bun run ensure:emails",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

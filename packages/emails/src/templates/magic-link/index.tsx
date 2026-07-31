@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import {
-  band, Callout, CodeToken, DataList, fallbackLink, focusedCta, focusedHeader, focusedHeadline, focusedLede,
-  focusedNote, focusedRule, footer, label, panel, space,
+  band, Callout, CodeSlab, fallbackLink, footer, recordCta, recordHeadline, recordLede, recordLog, recordMark,
+  recordMasthead, recordNote, recordSection, space, type LogRow,
 } from '../../kit/index.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
@@ -12,7 +12,7 @@ export default defineTemplate<MagicLinkProps>({
     key: 'magic_link',
     name: 'Magic sign-in link',
     genre: 'auth',
-    description: 'Passwordless sign-in with a short expiry, a typed code fallback and request provenance.',
+    description: 'Passwordless sign-in composed as a record: one act, a short expiry, and the request kept as a log.',
     modes: ['email', 'web'],
     primaryAction: 'Sign in',
     requiresUnsubscribe: false,
@@ -31,64 +31,63 @@ export default defineTemplate<MagicLinkProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const rows: ReactElement[] = [focusedHeader(ctx)];
+    const rows: ReactElement[] = recordMasthead(ctx, { stamp: 'Security · Sign-in' });
 
     rows.push(
       band(
         [
-          focusedHeadline(`Sign in to ${props.branding.name}`),
-          focusedLede('No password needed. This link signs you in on this device, then stops working.'),
-          focusedCta(ctx, { label: 'Sign in', href: props.signInUrl }),
-          focusedNote(`Expires in ${props.expiresInMinutes} minutes and works only once.`),
-          focusedRule(),
-          fallbackLink(ctx, props.signInUrl, { align: 'center' }),
+          recordHeadline(`Sign in to ${props.branding.name}`),
+          recordMark(),
+          recordLede('No password needed. This link signs you in on the device that opens it, then stops working.'),
+          recordCta(ctx, { label: 'Sign in', href: props.signInUrl }),
+          recordNote(`Expires in ${props.expiresInMinutes} minutes · Works once · Cannot be reused`),
         ],
-        { pt: space.none, pb: space.xl, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'act' },
       ),
     );
 
+    // The typed code is the path for a reader whose mail client and browser are
+    // on different devices, which is most people reading on a phone at a desk.
     if (props.fallbackCode) {
       rows.push(
         band(
           [
-            label('Signing in on another device', { align: 'center', key: 'cl', gap: space.sm }),
-            <CodeToken key="code" code={props.fallbackCode} groupSize={3} containerPadding="0px" />,
+            <CodeSlab
+              key="code"
+              code={props.fallbackCode}
+              groupSize={3}
+              stamp="Signing in somewhere else? Type this instead"
+              meta="Same expiry · Same single use"
+              containerPadding="0px"
+            />,
           ],
-          { pt: space.none, pb: space.xl, key: 'code' },
+          { pt: space.none, pb: space.xl, gutter: false, key: 'code' },
         ),
       );
     }
 
-    const details = [
+    const log: LogRow[] = [
       props.request?.device ? { key: 'Device', value: props.request.device } : null,
       props.request?.location ? { key: 'Location', value: props.request.location } : null,
-      props.request?.ipAddress ? { key: 'IP address', value: props.request.ipAddress, mono: true } : null,
-    ].filter((row): row is { key: string; value: string; mono?: boolean } => row !== null);
+      props.request?.ipAddress ? { key: 'IP address', value: props.request.ipAddress } : null,
+    ].filter((row): row is LogRow => row !== null);
 
-    if (details.length > 0) {
-      rows.push(
-        panel(
-          [
-            label('Requested from', { key: 'rh', gap: space.sm }),
-            <DataList key="dl" rows={details} containerPadding="0px" />,
-          ],
-          { key: 'provenance' },
-        ),
-      );
-    }
+    if (log.length > 0) rows.push(recordLog(log, { title: 'Requested from' }));
 
     rows.push(
       band(
         [
+          ...recordSection('If this was not you'),
           <Callout
             key="warn"
             tone="warning"
-            title="Not you?"
-            body="Ignore this email. Nobody can sign in without opening the link, and it expires on its own."
-            containerPadding="0px"
+            title="Do nothing and it dies on its own"
+            body="Nobody can sign in without opening the link, and it expires unused. If these keep arriving, someone knows your address — that is worth a password change."
+            containerPadding={`0px 0px ${space.lg} 0px`}
           />,
+          fallbackLink(ctx, props.signInUrl),
         ],
-        { pt: space.none, pb: space.xxl, key: 'warning' },
+        { pt: space.none, pb: space.xxl, key: 'guidance' },
       ),
     );
 

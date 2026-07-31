@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { Button, Column, ColumnLayouts, Divider, Heading, Image, Paragraph, Row } from '@unlayer/react-elements';
 import { hook } from './head-css.js';
 import { fonts, layout, palette, radius, space, type, type Dimension } from './tokens.js';
-import { type Ctx, ctaColor, linkColor } from './context.js';
+import { type Ctx, ctaColor, ctaTextColor, linkColor } from './context.js';
 
 type Align = 'left' | 'center' | 'right';
 
@@ -181,7 +181,8 @@ export interface CtaOptions {
   ctx: Ctx;
   label: string;
   href: string;
-  variant?: 'primary' | 'secondary';
+  /** `onSlab` is the variant for a button sitting on an ink band. */
+  variant?: 'primary' | 'secondary' | 'onSlab';
   /** Full width reads as more tappable on mobile and lifts click rate. */
   fullWidth?: boolean;
   align?: Align;
@@ -194,45 +195,42 @@ export interface CtaOptions {
  * explicitly. The secondary variant also carries a fill, because it has to still
  * read as a button in the clients that drop borders outright.
  */
-const secondaryBorder = {
-  borderTopWidth: '1px',
-  borderTopStyle: 'solid',
-  borderTopColor: palette.hairlineStrong,
-  borderRightWidth: '1px',
-  borderRightStyle: 'solid',
-  borderRightColor: palette.hairlineStrong,
-  borderBottomWidth: '1px',
-  borderBottomStyle: 'solid',
-  borderBottomColor: palette.hairlineStrong,
-  borderLeftWidth: '1px',
-  borderLeftStyle: 'solid',
-  borderLeftColor: palette.hairlineStrong,
-} as const;
+function box(color: string, width = '1px') {
+  return {
+    borderTopWidth: width, borderTopStyle: 'solid', borderTopColor: color,
+    borderRightWidth: width, borderRightStyle: 'solid', borderRightColor: color,
+    borderBottomWidth: width, borderBottomStyle: 'solid', borderBottomColor: color,
+    borderLeftWidth: width, borderLeftStyle: 'solid', borderLeftColor: color,
+  } as const;
+}
 
 /** 14px vertical padding on 16px text clears the 44px minimum touch target. */
 export function cta(options: CtaOptions): ReactElement {
   const { ctx, label: text, href, variant = 'primary', fullWidth = false, align = 'left', gap = space.md, key } = options;
-  const primary = variant === 'primary';
-  const bg = primary ? ctaColor(ctx) : palette.canvas;
-  const fg = primary ? palette.onDark : palette.ink;
+  const skin = {
+    primary: { bg: ctaColor(ctx), fg: ctaTextColor(ctx), hover: palette.accentHover, border: undefined },
+    secondary: { bg: palette.surface, fg: palette.ink, hover: palette.raised, border: box(palette.hairlineStrong) },
+    onSlab: { bg: palette.slab, fg: palette.accent, hover: palette.slabRaised, border: box(palette.slabRule) },
+  }[variant];
   return (
     <Button
       key={key}
       href={href}
       text={text}
-      backgroundColor={bg}
-      color={fg}
-      hoverBackgroundColor={primary ? palette.accentHover : palette.hairlineSoft}
-      hoverColor={fg}
+      backgroundColor={skin.bg}
+      color={skin.fg}
+      hoverBackgroundColor={skin.hover}
+      hoverColor={skin.fg}
       fontFamily={fonts.sans}
       fontSize="16px"
       fontWeight={600}
-      padding="14px 28px"
+      letterSpacing="-0.01em"
+      padding="15px 30px"
       borderRadius={radius.sm}
       textAlign={align}
       containerPadding={`0px 0px ${gap} 0px`}
       {...(fullWidth ? { width: '100%' } : {})}
-      {...(primary ? {} : { border: secondaryBorder })}
+      {...(skin.border ? { border: skin.border } : {})}
     />
   );
 }
@@ -253,12 +251,14 @@ export function fallbackLink(
   );
 }
 
-export function divider(options: { color?: string; width?: Dimension; gap?: string; key?: string } = {}): ReactElement {
-  const { color = palette.hairline, width = '100%', gap = space.md, key } = options;
+export function divider(
+  options: { color?: string; width?: Dimension; weight?: string; gap?: string; key?: string } = {},
+): ReactElement {
+  const { color = palette.hairline, width = '100%', weight = '1px', gap = space.md, key } = options;
   return (
     <Divider
       key={key}
-      borderTopWidth="1px"
+      borderTopWidth={weight}
       borderTopColor={color}
       borderTopStyle="solid"
       width={width}

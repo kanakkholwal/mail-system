@@ -1,20 +1,20 @@
+'use client';
+
 import type { CatalogueEntry } from '@/lib/catalogue';
+import { useStudioTheme } from '@/lib/use-theme';
 import styles from './template-card.module.css';
 
 export function TemplateCard({ entry }: { entry: CatalogueEntry }) {
   const printable = entry.modes.includes('document');
+  const theme = useStudioTheme();
+  // Before hydration the render is `auto`, which is what a real inbox gets.
+  const src = theme ? `/api/preview/${entry.key}?theme=${theme}` : `/api/preview/${entry.key}`;
 
   return (
     <a href={`/t/${entry.key}`} className={styles.card}>
       <div className={styles.thumb}>
         {/* Loaded on demand: 21 eager previews would be a megabyte of markup. */}
-        <iframe
-          src={`/api/preview/${entry.key}`}
-          title={`${entry.name} preview`}
-          loading="lazy"
-          scrolling="no"
-          tabIndex={-1}
-        />
+        <iframe src={src} title={`${entry.name} preview`} loading="lazy" scrolling="no" tabIndex={-1} />
         <span className={styles.scrim} aria-hidden="true" />
       </div>
 

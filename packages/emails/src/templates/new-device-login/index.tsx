@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import {
-  band, Callout, cta, DataList, focusedHeader, focusedHeadline, focusedLede, focusedNote, focusedRule, footer,
-  label, panel, space, StatusBadge,
+  band, Callout, footer, LogTable, recordCta, recordHeadline, recordLede, recordMark, recordMasthead, recordNote,
+  recordSection, space, type LogRow,
 } from '../../kit/index.js';
 import { dateTime } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
@@ -13,7 +13,7 @@ export default defineTemplate<NewDeviceLoginProps>({
     key: 'new_device_login',
     name: 'New device sign-in alert',
     genre: 'security',
-    description: 'Sign-in notice that leads with the remedial action rather than a reassuring one.',
+    description: 'Leads with the evidence rather than a headline, because the reader arrives asking one question: was that me?',
     modes: ['email', 'web'],
     primaryAction: 'Secure the account',
     requiresUnsubscribe: false,
@@ -38,73 +38,66 @@ export default defineTemplate<NewDeviceLoginProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const rows: ReactElement[] = [focusedHeader(ctx)];
     const { signIn, flagged } = props;
 
-    rows.push(
+    // Location is what marks a sign-in unusual, so it is the row that carries
+    // the flag. Flagging every row would flag nothing.
+    const log: LogRow[] = [
+      { key: 'When', value: dateTime(signIn.at, props.locale.tag) },
+      { key: 'Device', value: signIn.device },
+      ...(signIn.browser ? [{ key: 'Browser', value: signIn.browser }] : []),
+      ...(signIn.location ? [{ key: 'Location', value: signIn.location, flagged }] : []),
+      ...(signIn.ipAddress ? [{ key: 'IP address', value: signIn.ipAddress, flagged }] : []),
+    ];
+
+    return [
+      ...recordMasthead(ctx, {
+        stamp: flagged ? 'Security · Unusual sign-in' : 'Security · New device',
+        severity: flagged ? 'alert' : 'notice',
+      }),
+
+      // Evidence first. The reader opened this to check one thing, and a headline
+      // above the log only delays the answer they came for.
+      band(
+        [...recordSection('The sign-in', 'ev'), <LogTable key="lt" rows={log} containerPadding="0px" />],
+        { pt: space.xl, pb: space.xl, key: 'evidence' },
+      ),
+
       band(
         [
-          <StatusBadge
-            key="badge"
-            tone={flagged ? 'danger' : 'info'}
-            text={flagged ? 'Unusual activity' : 'New device'}
-            align="center"
-            containerPadding={`${space.xl} 0px ${space.sm} 0px`}
-          />,
-          focusedHeadline(flagged ? 'An unusual sign-in happened' : 'A new device signed in', 'h'),
-          focusedLede(
+          recordHeadline(flagged ? 'Was that you?' : 'A new device signed in'),
+          recordMark(),
+          recordLede(
             flagged
-              ? 'We let it through, but it did not match your usual pattern. Check the details below.'
-              : 'A routine notice. Nothing to do if you recognise the device below.',
+              ? 'We let it through, but the location does not match anywhere you usually sign in from. If you do not recognise it, lock the account down now.'
+              : 'A routine notice. Nothing to do if you recognise the device above — we send one the first time any device signs in.',
           ),
           ...(flagged
-            ? [cta({ ctx, label: 'Secure the account', href: props.secureAccountUrl, align: 'center', gap: space.md, key: 'c' })]
+            ? [
+                recordCta(ctx, { label: 'Lock the account down', href: props.secureAccountUrl }),
+                recordNote('Changes your password and signs out every other session, including this one.'),
+              ]
             : []),
-          focusedNote('We send this the first time any device signs in.'),
-          focusedRule(),
         ],
-        { pt: space.none, pb: space.lg, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'verdict' },
       ),
-    );
 
-    rows.push(
-      panel(
-        [
-          label('The sign-in', { key: 'sl', gap: space.sm }),
-          <DataList
-            key="dl"
-            rows={[
-              { key: 'When', value: dateTime(signIn.at, props.locale.tag) },
-              { key: 'Device', value: signIn.device },
-              ...(signIn.browser ? [{ key: 'Browser', value: signIn.browser }] : []),
-              ...(signIn.location ? [{ key: 'Location', value: signIn.location }] : []),
-              ...(signIn.ipAddress ? [{ key: 'IP address', value: signIn.ipAddress, mono: true }] : []),
-            ]}
-            containerPadding="0px"
-          />,
-        ],
-        { key: 'signin-panel' },
-      ),
-    );
-
-    rows.push(
       band(
         [
+          ...recordSection('If it was not you'),
           <Callout
             key="note"
             tone={flagged ? 'danger' : 'neutral'}
-            title="If this was not you"
-            body="Change your password and sign out every other session. That revokes the intruder's access immediately."
-            containerPadding={`0px 0px ${props.reviewSessionsUrl ? space.md : space.none} 0px`}
+            title="Change the password, then revoke the sessions"
+            body="A password change alone leaves an intruder signed in on their own device. Revoking sessions is what actually removes them."
+            containerPadding={`0px 0px ${props.reviewSessionsUrl ? space.lg : space.none} 0px`}
           />,
           ...(props.reviewSessionsUrl
             ? [
-                cta({
-                  ctx,
+                recordCta(ctx, {
                   label: 'Review active sessions',
                   href: props.reviewSessionsUrl,
-                  variant: 'secondary',
-                  fullWidth: true,
+                  variant: flagged ? 'secondary' : 'primary',
                   gap: space.none,
                   key: 'c2',
                 }),
@@ -113,10 +106,8 @@ export default defineTemplate<NewDeviceLoginProps>({
         ],
         { pt: space.none, pb: space.xxl, key: 'guidance' },
       ),
-    );
 
-
-    rows.push(...footer(ctx));
-    return rows;
+      ...footer(ctx),
+    ];
   },
 });

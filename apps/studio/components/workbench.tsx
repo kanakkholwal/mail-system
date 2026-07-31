@@ -1,6 +1,6 @@
 'use client';
 
-import type { RenderMode, TemplateMeta } from '@better-mailer/emails';
+import type { RenderMode, TemplateMeta, Theme } from '@better-mailer/emails';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { writeAt, type JsonValue, type Path, type SchemaNode } from '@/lib/json-schema';
 import type { RenderOutcome } from '@/lib/catalogue';
@@ -17,6 +17,13 @@ const WIDTH: Record<RenderMode, { wide: number; narrow: number }> = {
 /** Gmail clips a message past this, hiding the footer and the unsubscribe link. */
 const GMAIL_CLIP = 102_400;
 
+/**
+ * An iframe reads prefers-color-scheme from the OS, so the studio's own toggle
+ * cannot reach inside one. Forcing the theme at render time is the only way to
+ * review the half the machine is not currently set to.
+ */
+const THEME_LABEL: Record<Theme, string> = { auto: 'Auto', light: 'Light', dark: 'Dark' };
+
 type Tab = 'preview' | 'text' | 'html';
 
 interface Props {
@@ -29,6 +36,7 @@ interface Props {
 export function Workbench({ meta, schema, sample, initial }: Props) {
   const [payload, setPayload] = useState<JsonValue>(sample);
   const [mode, setMode] = useState<RenderMode>(meta.modes[0] ?? 'email');
+  const [theme, setTheme] = useState<Theme>('auto');
   const [narrow, setNarrow] = useState(false);
   const [tab, setTab] = useState<Tab>('preview');
   const [outcome, setOutcome] = useState<RenderOutcome>(initial);
@@ -52,7 +60,7 @@ export function Workbench({ meta, schema, sample, initial }: Props) {
       fetch('/api/render', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ key: meta.key, mode, payload }),
+        body: JSON.stringify({ key: meta.key, mode, theme, payload }),
         signal: controller.signal,
       })
         .then((response) => response.json() as Promise<RenderOutcome>)
@@ -67,7 +75,7 @@ export function Workbench({ meta, schema, sample, initial }: Props) {
     }, 320);
 
     return () => clearTimeout(timer);
-  }, [payload, mode, meta.key]);
+  }, [payload, mode, theme, meta.key]);
 
   const emit = useCallback((path: Path, next: JsonValue | undefined) => {
     setPayload((current) => writeAt(current, path, next));
@@ -81,14 +89,8 @@ export function Workbench({ meta, schema, sample, initial }: Props) {
   const width = narrow ? WIDTH[mode].narrow : WIDTH[mode].wide;
   const clipped = outcome.bytes > GMAIL_CLIP;
 
-  const copyCurl = (): void => {
-    const command = [
-      `curl -X POST "$BETTER_MAILER_URL/v1/send" \\`,
-      `  -H "Authorization: Bearer $BETTER_MAILER_KEY" \\`,
-      `  -H 'Content-Type: application/json' \\`,
-      `  -d '${JSON.stringify({ template: meta.key, to: 'someone@example.com', payload })}'`,
-    ].join('\n');
-    void navigator.clipboard.writeText(command);
+  const copyPayload = (): void => {
+    void navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
   };
 
   const downloadDesign = (): void => {
@@ -133,6 +135,21 @@ export function Workbench({ meta, schema, sample, initial }: Props) {
             </button>
           </div>
 
+          {mode !== 'document' && (
+            <div className={styles.segmented} role="group" aria-label="Client colour scheme">
+              {(['auto', 'light', 'dark'] as Theme[]).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  aria-pressed={option === theme}
+                  onClick={() => setTheme(option)}
+                >
+                  {THEME_LABEL[option]}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className={styles.spacer} />
 
           <div className={styles.segmented} role="group" aria-label="Output">
@@ -146,8 +163,8 @@ export function Workbench({ meta, schema, sample, initial }: Props) {
           <button type="button" className={styles.action} onClick={downloadDesign}>
             Design JSON
           </button>
-          <button type="button" className={styles.action} onClick={copyCurl}>
-            Copy curl
+          <button type="button" className={styles.action} onClick={copyPayload}>
+            Copy payload
           </button>
         </div>
 

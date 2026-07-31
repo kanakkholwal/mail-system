@@ -25,3 +25,4 @@ export {
 } from './schema/common.js';
 export { demoBase, demoBaseMarketing } from './samples/common.js';
 export type { RenderMode } from './kit/tokens.js';
+export type { Theme } from './kit/head-css.js';

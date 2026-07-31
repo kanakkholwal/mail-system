@@ -21,6 +21,10 @@ export const hook = {
    * through Elements' internal classes. These are the seams it uses instead.
    * Without them a DataList value stays near-black on a near-black surface.
    */
+  /** Payload type (a code, a total) and the mono genre stamp. Scaled on mobile. */
+  payload: 'bm-payload',
+  stamp: 'bm-stamp',
+
   ink: 'bm-ink',
   body: 'bm-body',
   dim: 'bm-dim',
@@ -84,8 +88,11 @@ function mobile(): string {
     padding-right: ${layout.gutterMobile} !important;
   }
   .${hook.hideSm} { display: none !important; }
-  .${el.heading} h1 { font-size: 26px !important; }
-  .${el.heading} h2 { font-size: 20px !important; }
+  .${el.heading} h1 { font-size: 29px !important; }
+  .${el.heading} h2 { font-size: 21px !important; }
+  /* Payload type is set by a custom tool, so it scales on its own hook. */
+  .${hook.payload} { font-size: 40px !important; letter-spacing: .08em !important; }
+  .${hook.stamp} { letter-spacing: .14em !important; }
 }`.trim();
 }
 
@@ -95,11 +102,9 @@ function mobile(): string {
  * The [style*=] selectors are the only way to tell a muted paragraph from a
  * body one, since Elements emits no per-variant class.
  */
-function dark(): string {
+function darkRules(): string {
   const surface = `.${hook.surface}:not(.${hook.fixed})`;
   return `
-:root { color-scheme: light dark; supported-color-schemes: light dark; }
-@media (prefers-color-scheme: dark) {
   body, .u_body { background-color: ${darkPalette.canvas} !important; }
   ${surface} ${el.rowPad}, ${surface} .u-row, ${surface} .v-row-background-image--inner {
     background-color: ${darkPalette.surface} !important;
@@ -111,14 +116,15 @@ function dark(): string {
   }
   ${surface} ${el.heading} ${el.color} { color: ${darkPalette.ink} !important; }
   ${surface} ${el.paragraph} ${el.color} { color: ${darkPalette.body} !important; }
+  ${surface} ${el.paragraph} [style*="${palette.inkSoft}"] { color: ${darkPalette.inkSoft} !important; }
   ${surface} ${el.paragraph} [style*="${palette.muted}"] { color: ${darkPalette.muted} !important; }
   ${surface} ${el.divider} { border-top-color: ${darkPalette.hairline} !important; }
   .${hook.invertInk} { color: ${darkPalette.ink} !important; }
-  /* The accent is tuned for a light ground; dark mode takes its own step. */
   ${surface} ${el.button} a[style*="${palette.accent}"] {
-    background-color: ${darkPalette.accent} !important; color: ${darkPalette.canvas} !important;
+    background-color: ${darkPalette.accent} !important; color: ${palette.onAccent} !important;
   }
-  ${surface} a[style*="${palette.accent}"] { color: ${darkPalette.accent} !important; }
+  /* Ink links would vanish on a dark surface, so they take the light ink step. */
+  ${surface} ${el.paragraph} a[style*="${palette.link}"] { color: ${darkPalette.link} !important; }
 
   /* Custom tool output. Reached by class because it is not Elements' markup. */
   ${surface} .${hook.ink} { color: ${darkPalette.ink} !important; }
@@ -132,7 +138,25 @@ function dark(): string {
   ${surface} .${hook.neg} { color: ${darkPalette.danger} !important; }
   ${surface} .${hook.posFill} { background-color: ${darkPalette.successTint} !important; }
   ${surface} .${hook.warnFill} { background-color: ${darkPalette.warningTint} !important; }
-  ${surface} .${hook.negFill} { background-color: ${darkPalette.dangerTint} !important; }
+  ${surface} .${hook.negFill} { background-color: ${darkPalette.dangerTint} !important; }`.trimEnd();
+}
+
+/**
+ * `auto` is what a real inbox gets. The forced values exist because an iframe
+ * inherits prefers-color-scheme from the OS, so a preview cannot otherwise show
+ * the half the reviewer is not currently running.
+ */
+export type Theme = 'auto' | 'light' | 'dark';
+
+function dark(theme: Theme): string {
+  if (theme === 'light') return ':root { color-scheme: light; supported-color-schemes: light; }';
+  if (theme === 'dark') {
+    return `:root { color-scheme: dark; supported-color-schemes: dark; }\n${darkRules()}`.trim();
+  }
+  return `
+:root { color-scheme: light dark; supported-color-schemes: light dark; }
+@media (prefers-color-scheme: dark) {
+${darkRules()}
 }`.trim();
 }
 
@@ -160,8 +184,8 @@ const PRINT = `
 }
 `.trim();
 
-export function headCss(mode: RenderMode): string {
+export function headCss(mode: RenderMode, theme: Theme = 'auto'): string {
   if (mode === 'document') return [RESET, PRINT].join('\n\n');
-  if (mode === 'web') return [RESET, mobile(), dark()].join('\n\n');
-  return [RESET, AUTOLINK, mobile(), dark()].join('\n\n');
+  if (mode === 'web') return [RESET, mobile(), dark(theme)].join('\n\n');
+  return [RESET, AUTOLINK, mobile(), dark(theme)].join('\n\n');
 }

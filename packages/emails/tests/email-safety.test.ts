@@ -110,9 +110,11 @@ describe('accessibility and deliverability', () => {
     const template_ = template as { meta: { primaryAction: string } };
     if (!template_.meta.primaryAction) return;
     const html = renderEmail(template);
-    const primary = (template.sample as { branding: { primaryColor?: string } }).branding.primaryColor ?? palette.ink;
-    const buttons = html.match(new RegExp(`background-color:\\s*${primary}`, 'gi')) ?? [];
+    const primary = (template.sample as { branding: { primaryColor?: string } }).branding.primaryColor ?? palette.accent;
+    // Anchors only. The fill also appears on slabs and marks, which are not actions.
+    const buttons = html.match(new RegExp(`<a\\b[^>]*background-color:\\s*${primary}`, 'gi')) ?? [];
     expect(buttons.length, 'a single unmistakable action converts best').toBeLessThanOrEqual(2);
+    expect(buttons.length, 'a template with a primary action must render one').toBeGreaterThanOrEqual(1);
   });
 });
 

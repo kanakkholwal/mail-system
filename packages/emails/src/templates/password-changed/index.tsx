@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import {
-  band, Callout, cta, DataList, focusedHeader, focusedHeadline, focusedLede, focusedRule, footer, label, panel,
-  space, StatusBadge,
+  band, Callout, footer, LogTable, recordCta, recordHeadline, recordLede, recordMark, recordMasthead, recordNote,
+  recordSection, space, type LogRow,
 } from '../../kit/index.js';
 import { dateTime } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
@@ -13,7 +13,7 @@ export default defineTemplate<PasswordChangedProps>({
     key: 'password_changed',
     name: 'Password changed',
     genre: 'security',
-    description: 'Confirmation notice whose only action is the recovery path, since a legitimate change needs none.',
+    description: 'A receipt for a change already made. Its only action is the recovery path, because a legitimate change needs none.',
     modes: ['email', 'web'],
     primaryAction: 'Secure the account',
     requiresUnsubscribe: false,
@@ -33,63 +33,54 @@ export default defineTemplate<PasswordChangedProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const details = [
+    const log: LogRow[] = [
       { key: 'When', value: dateTime(props.changedAt, props.locale.tag) },
       ...(props.device ? [{ key: 'Device', value: props.device }] : []),
       ...(props.location ? [{ key: 'Location', value: props.location }] : []),
-      ...(props.sessionsRevoked
-        ? [{ key: 'Other sessions', value: 'Signed out', tone: 'success' as const }]
-        : []),
+      {
+        key: 'Other sessions',
+        value: props.sessionsRevoked ? 'Signed out' : 'Still signed in',
+        flagged: !props.sessionsRevoked,
+      },
     ];
 
     return [
-      focusedHeader(ctx),
+      ...recordMasthead(ctx, { stamp: 'Security · Password changed', severity: 'notice' }),
+
       band(
         [
-          <StatusBadge
-            key="badge"
-            tone="success"
-            text="Done"
-            align="center"
-            containerPadding={`${space.xl} 0px ${space.sm} 0px`}
-          />,
-          focusedHeadline('Your password was changed'),
-          focusedLede(
+          recordHeadline('Your password was changed'),
+          recordMark(),
+          recordLede(
             props.sessionsRevoked
-              ? 'The new password is active and every other signed-in device has been signed out.'
-              : 'The new password is active. Other signed-in devices stay signed in.',
+              ? 'The new password is active and every other signed-in device has been signed out. Nothing else to do.'
+              : 'The new password is active. Other devices you were already signed in on stay signed in.',
           ),
-          focusedRule(),
+          recordNote('This is a record. It is sent on every password change and cannot be turned off.'),
         ],
-        { pt: space.none, pb: space.none, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'confirm' },
       ),
-      panel(
-        [
-          label('What changed', { key: 'wl', gap: space.sm }),
-          <DataList key="dl" rows={details} containerPadding="0px" />,
-        ],
-        { key: 'detail-panel' },
+
+      band(
+        [...recordSection('The change', 'ch'), <LogTable key="lt" rows={log} containerPadding="0px" />],
+        { pt: space.none, pb: space.xl, key: 'record' },
       ),
+
       band(
         [
+          ...recordSection('If you did not change it'),
           <Callout
             key="warn"
             tone="danger"
-            title="Did not change it?"
-            body="Someone else may hold your password. Recover the account now and we will lock out every other session."
-            containerPadding={`0px 0px ${space.md} 0px`}
+            title="Someone else holds your password"
+            body="Recovering the account now resets it again and locks out every other session. The longer the wait, the more they can change."
+            containerPadding={`0px 0px ${space.lg} 0px`}
           />,
-          cta({
-            ctx,
-            label: 'Secure the account',
-            href: props.secureAccountUrl,
-            fullWidth: true,
-            gap: space.none,
-            key: 'c',
-          }),
+          recordCta(ctx, { label: 'Recover the account', href: props.secureAccountUrl, gap: space.none }),
         ],
         { pt: space.none, pb: space.xxl, key: 'recovery' },
       ),
+
       ...footer(ctx),
     ];
   },
