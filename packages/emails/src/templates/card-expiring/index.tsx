@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, cta, DataList, divider, fallbackLink, footer, lede, small, space,
-  StatusBadge, title,
+  band, cta, DataList, divider, fallbackLink, footer, ledgerAmount, ledgerMasthead, ledgerSection, lede,
+  small, space, StatusBadge, title,
 } from '../../kit/index.js';
 import { date, money } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
@@ -38,8 +38,7 @@ export default defineTemplate<CardExpiringProps>({
     const locale = props.locale.tag;
 
     return [
-      brandHeader(ctx),
-      accentRule(ctx),
+      ...ledgerMasthead(ctx, { docType: 'Card on file', docNumber: `•••• ${props.card.last4}` }),
       band(
         [
           <StatusBadge key="badge" tone="warning" text="Action needed soon" containerPadding={`0px 0px ${space.md} 0px`} />,
@@ -48,17 +47,12 @@ export default defineTemplate<CardExpiringProps>({
             `Nothing has failed yet. Updating the card now means your renewal on ${date(props.nextChargeDate, locale)} goes through without interruption.`,
             { key: 'l' },
           ),
-          <DataList
-            key="dl"
-            rows={[
-              { key: 'Card', value: `${props.card.brand} ending ${props.card.last4}` },
-              ...(props.card.expiry ? [{ key: 'Expires', value: props.card.expiry, mono: true, tone: 'danger' as const }] : []),
-              { key: 'Next charge', value: date(props.nextChargeDate, locale) },
-              { key: 'Amount', value: money(props.amount, props.currency, locale), mono: true },
-              { key: 'Plan', value: props.plan },
-            ]}
-            containerPadding={`0px 0px ${space.lg} 0px`}
-          />,
+          // The charge, not the expiry date, is what the reader is deciding about.
+          ...ledgerAmount({
+            label: 'Next charge',
+            amount: money(props.amount, props.currency, locale),
+            meta: `${date(props.nextChargeDate, locale)} · ${props.plan}`,
+          }),
           cta({
             ctx,
             label: 'Update card',
@@ -69,7 +63,22 @@ export default defineTemplate<CardExpiringProps>({
           }),
           fallbackLink(ctx, props.updatePaymentUrl),
         ],
-        { pt: space.xs, pb: space.lg, key: 'hero' },
+        { pt: space.lg, pb: space.lg, key: 'hero' },
+      ),
+      band(
+        [
+          ...ledgerSection('The card'),
+          <DataList
+            key="dl"
+            rows={[
+              { key: 'Card', value: `${props.card.brand} ending ${props.card.last4}` },
+              ...(props.card.expiry ? [{ key: 'Expires', value: props.card.expiry, mono: true, tone: 'danger' as const }] : []),
+              { key: 'Plan', value: props.plan },
+            ]}
+            containerPadding="0px"
+          />,
+        ],
+        { pt: space.none, pb: space.lg, key: 'card-detail' },
       ),
       band(
         [

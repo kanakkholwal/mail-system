@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, CodeToken, cta, DataList, divider, fallbackLink, footer, label, lede,
-  Meter, small, space, title,
+  band, brandHeader, CodeToken, DataList, divider, editorialCta, editorialHeadline, editorialKicker,
+  editorialLede, fallbackLink, footer, hero, label, Meter, small, space,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT } from '../../samples/photos.js';
 import { defineTemplate } from '../../template.js';
 import { demoBaseMarketing } from '../../samples/common.js';
 import { referralInviteSchema, type ReferralInviteProps } from './schema.js';
@@ -33,32 +34,25 @@ export default defineTemplate<ReferralInviteProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [brandHeader(ctx), hero({ src: PHOTO.referral, alt: PHOTO_ALT.referral })];
     const capped = props.progress ? props.progress.referred >= props.progress.cap : false;
 
     rows.push(
       band(
         [
-          title(`Give ${props.rewardForFriend}, get ${props.rewardForYou}`, { key: 'h' }),
-          lede(
+          ...editorialKicker('Referrals'),
+          editorialHeadline(`Give ${props.rewardForFriend}, get ${props.rewardForYou}`),
+          editorialLede(
             `Anyone who signs up through your link gets ${props.rewardForFriend}. Once they stay past their first month, you get ${props.rewardForYou} credited automatically.`,
-            { key: 'l' },
           ),
           ...(capped
             ? []
             : [
-                cta({
-                  ctx,
-                  label: 'Share your link',
-                  href: props.referralUrl,
-                  fullWidth: true,
-                  gap: space.sm,
-                  key: 'c',
-                }),
-                fallbackLink(ctx, props.referralUrl, 'Or copy your link:'),
+                editorialCta(ctx, { label: 'Share your link', href: props.referralUrl }),
+                fallbackLink(ctx, props.referralUrl, { lead: 'Or copy your link:' }),
               ]),
         ],
-        { pt: space.xs, pb: space.xl, key: 'hero' },
+        { pt: space.xl, pb: space.xl, key: 'hero-copy' },
       ),
     );
 

@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, Callout, cta, DataList, divider, fallbackLink, footer, lede, small,
-  space, title,
+  band, brandHeader, Callout, cta, DataList, divider, editorialCta, editorialHeadline, editorialKicker,
+  editorialLede, fallbackLink, footer, hero, pullQuote, small, space,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT } from '../../samples/photos.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
 import { teamInviteSchema, type TeamInviteProps } from './schema.js';
@@ -43,41 +44,29 @@ export default defineTemplate<TeamInviteProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [brandHeader(ctx), hero({ src: PHOTO.teamInvite, alt: PHOTO_ALT.teamInvite })];
 
     rows.push(
       band(
         [
-          title(`${props.inviter.name} invited you to ${props.workspaceName}`, { key: 'h' }),
-          lede(
+          ...editorialKicker('Invitation'),
+          editorialHeadline(`${props.inviter.name} invited you to ${props.workspaceName}`),
+          editorialLede(
             props.memberCount && props.memberCount > 1
               ? `You would be joining ${props.memberCount} people already working in ${props.workspaceName}.`
               : `${props.workspaceName} is set up and waiting for you.`,
-            { key: 'l' },
           ),
-          cta({ ctx, label: 'Accept invitation', href: props.acceptUrl, fullWidth: true, gap: space.sm, key: 'c' }),
+          editorialCta(ctx, { label: 'Accept invitation', href: props.acceptUrl }),
           small(`This invite expires in <strong>${props.expiresInDays} days</strong>.`, { key: 'e', gap: space.md }),
           fallbackLink(ctx, props.acceptUrl),
         ],
-        { pt: space.xs, pb: space.xl, key: 'hero' },
+        { pt: space.xl, pb: space.xl, key: 'hero-copy' },
       ),
     );
 
+    // A note from a named person is a quote, not a system callout.
     if (props.message) {
-      rows.push(
-        band(
-          [
-            <Callout
-              key="msg"
-              tone="neutral"
-              title={`${props.inviter.name} added a note`}
-              body={props.message}
-              containerPadding="0px"
-            />,
-          ],
-          { pt: space.none, pb: space.lg, key: 'note' },
-        ),
-      );
+      rows.push(pullQuote({ body: props.message, attribution: props.inviter.name, key: 'note' }));
     }
 
     rows.push(

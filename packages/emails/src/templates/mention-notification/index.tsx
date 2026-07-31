@@ -1,7 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, Callout, cta, divider, footer, label, lede, small, space, title,
+  band, brandHeader, divider, editorialCta, editorialHeadline, editorialKicker, editorialLede, footer,
+  hero, pullQuote, small, space,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT } from '../../samples/photos.js';
 import { dateTime } from '../../lib/format.js';
 import { esc } from '../../lib/html.js';
 import { defineTemplate } from '../../template.js';
@@ -44,21 +46,29 @@ export default defineTemplate<MentionNotificationProps>({
 
   build(props, ctx): ReactElement[] {
     const locale = props.locale.tag;
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [brandHeader(ctx), hero({ src: PHOTO.mention, alt: PHOTO_ALT.mention })];
 
     rows.push(
       band(
         [
-          label(dateTime(props.mentionedAt, locale), { key: 'when', gap: space.xs }),
-          title(`${props.actor.name} mentioned you`, { key: 'h', gap: space.xs }),
-          lede(`In ${KIND[props.context.kind]} <strong>${esc(props.context.title)}</strong>.`, { key: 'l' }),
-          // Quoting the comment is the whole point. A bare "you were mentioned"
-          // forces a context switch to learn whether it even needs a reply.
-          <Callout key="quote" tone="neutral" body={esc(props.excerpt)} containerPadding={`0px 0px ${space.lg} 0px`} />,
-          cta({ ctx, label: 'Reply', href: props.replyUrl, fullWidth: true, gap: space.none, key: 'c' }),
+          ...editorialKicker(dateTime(props.mentionedAt, locale)),
+          editorialHeadline(`${props.actor.name} mentioned you`),
+          editorialLede(`In ${KIND[props.context.kind]} <strong>${esc(props.context.title)}</strong>.`),
         ],
-        { pt: space.xs, pb: space.lg, key: 'hero' },
+        { pt: space.xl, pb: space.md, key: 'hero-copy' },
       ),
+    );
+
+    // Quoting the comment is the whole point. A bare "you were mentioned"
+    // forces a context switch to learn whether it even needs a reply.
+    rows.push(pullQuote({ body: esc(props.excerpt), attribution: props.actor.name, key: 'quote' }));
+
+    rows.push(
+      band([editorialCta(ctx, { label: 'Reply', href: props.replyUrl })], {
+        pt: space.none,
+        pb: space.lg,
+        key: 'action',
+      }),
     );
 
     const tail: ReactElement[] = [divider({ gap: space.none, key: 'd' })];

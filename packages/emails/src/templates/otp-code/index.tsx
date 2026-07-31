@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
-import { accentRule, band, brandHeader, Callout, CodeToken, footer, lede, small, space, title } from '../../kit/index.js';
+import {
+  band, Callout, CodeToken, focusedHeader, focusedHeadline, focusedLede, focusedNote, footer, space,
+} from '../../kit/index.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
 import { otpCodeSchema, type OtpCodeProps } from './schema.js';
@@ -38,21 +40,17 @@ export default defineTemplate<OtpCodeProps>({
     const destructive = props.purpose === 'delete_account';
 
     return [
-      brandHeader(ctx),
-      accentRule(ctx),
+      focusedHeader(ctx),
       // No button anywhere: a code email with a clickable link teaches users to
       // click links in code emails, which is exactly the phishing vector.
       band(
         [
-          title(copy.title, { key: 'h' }),
-          lede(copy.lede, { key: 'l' }),
+          focusedHeadline(copy.title),
+          focusedLede(copy.lede),
           <CodeToken key="code" code={props.code} groupSize={3} containerPadding={`0px 0px ${space.md} 0px`} />,
-          small(`This code expires in <strong>${props.expiresInMinutes} minutes</strong>.`, {
-            key: 'e',
-            gap: space.none,
-          }),
+          focusedNote(`Expires in ${props.expiresInMinutes} minutes.`),
         ],
-        { pt: space.xs, pb: space.xl, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'main' },
       ),
       band(
         [

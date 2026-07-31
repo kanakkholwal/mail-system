@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import {
   accentRule, band, bandSplit, brandHeader, caption, cta, DataList, divider, footer, heading, label,
-  LineItems, lede, small, space, StatusBadge, title, type Ctx,
+  ledgerMasthead, ledgerSection, LineItems, lede, small, space, StatusBadge, title, type Ctx,
 } from '../../kit/index.js';
 import { date, dateTime, money, percent } from '../../lib/format.js';
 import { computeTotals, lineTotal } from '../../lib/totals.js';
@@ -103,18 +103,16 @@ function confirmationMail(props: OrderConfirmedProps, ctx: Ctx, bits: Bits): Rea
   const greeting = props.recipientName ? `Thanks, ${props.recipientName}.` : 'Thanks.';
 
   return [
-    brandHeader(ctx),
-    accentRule(ctx),
+    ...ledgerMasthead(ctx, { docType: 'Order', docNumber: props.orderNumber }),
     band(
       [
         <StatusBadge key="badge" tone="success" text="Confirmed" containerPadding={`0px 0px ${space.md} 0px`} />,
-        title(`${greeting} Order ${props.orderNumber} is in`, { key: 'h' }),
+        title(`${greeting} Your order is in`, { key: 'h' }),
         // The delivery window is the one fact the recipient actually wants.
         lede(`Arriving between <strong>${bits.window}</strong>. Nothing else is needed from you.`, { key: 'l' }),
         <DataList
           key="dl"
           rows={[
-            { key: 'Order', value: props.orderNumber, mono: true },
             { key: 'Placed', value: dateTime(props.placedAt, locale) },
             { key: 'Delivering to', value: props.shipTo.name },
           ]}
@@ -122,12 +120,11 @@ function confirmationMail(props: OrderConfirmedProps, ctx: Ctx, bits: Bits): Rea
         />,
         cta({ ctx, label: 'Track your order', href: props.orderUrl, fullWidth: true, gap: space.none, key: 'c' }),
       ],
-      { pt: space.xs, pb: space.xl, key: 'hero' },
+      { pt: space.lg, pb: space.xl, key: 'hero' },
     ),
     band(
       [
-        divider({ gap: space.none, key: 'd' }),
-        label('Your order', { key: 'il', gap: space.md }),
+        ...ledgerSection('Your order'),
         <LineItems key="items" rows={bits.itemRows} totals={bits.totalRows} containerPadding="0px" />,
       ],
       { pt: space.none, pb: space.lg, key: 'items' },

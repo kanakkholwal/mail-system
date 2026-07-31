@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, AmountBlock, band, bandSplit, brandHeader, caption, cta, DataList, divider, fallbackLink,
-  footer, heading, label, LineItems, palette, small, space, StatusBadge, text, title,
-  type Ctx,
+  accentRule, band, bandSplit, brandHeader, caption, cta, DataList, divider, fallbackLink,
+  footer, heading, label, ledgerAmount, ledgerMasthead, ledgerSection, LineItems, palette, small, space,
+  StatusBadge, text, title, type Ctx,
 } from '../../kit/index.js';
 import { date, daysUntil, money, percent } from '../../lib/format.js';
 import { computeTotals, lineTotal } from '../../lib/totals.js';
@@ -174,7 +174,7 @@ interface Computed {
 function mailLayout(props: InvoiceIssuedProps, ctx: Ctx, c: Computed): ReactElement[] {
   const locale = props.locale.tag;
   const owed = props.status === 'paid' ? 0 : c.totals.balance;
-  const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+  const rows: ReactElement[] = ledgerMasthead(ctx, { docType: 'Invoice', docNumber: props.number });
 
   rows.push(
     band(
@@ -185,41 +185,36 @@ function mailLayout(props: InvoiceIssuedProps, ctx: Ctx, c: Computed): ReactElem
           text={STATUS_TEXT[props.status]}
           containerPadding={`0px 0px ${space.md} 0px`}
         />,
-        title(`Invoice ${props.number}`, { key: 'h', gap: space.xs }),
         caption(
           [props.projectName, props.purchaseOrder ? `PO ${props.purchaseOrder}` : '']
             .filter(Boolean)
             .join(' &nbsp;·&nbsp; '),
           { key: 'sub', gap: space.lg },
         ),
-        <AmountBlock
-          key="amount"
-          label={props.status === 'paid' ? 'Paid in full' : 'Balance due'}
-          amount={c.fmt(owed)}
-          meta={
+        ...ledgerAmount({
+          label: props.status === 'paid' ? 'Paid in full' : 'Balance due',
+          amount: c.fmt(owed),
+          meta:
             props.status === 'paid'
-              ? `Settled in full. Nothing further is owed.`
-              : `Due ${date(props.dueDate, locale)}, net ${c.netDays} days`
-          }
-          color={props.status === 'overdue' ? palette.danger : palette.ink}
-          containerPadding={`0px 0px ${space.lg} 0px`}
-        />,
+              ? 'Settled in full. Nothing further is owed.'
+              : `Due ${date(props.dueDate, locale)}, net ${c.netDays} days`,
+          tone: props.status === 'overdue' ? palette.danger : palette.ink,
+        }),
         ...(props.status === 'paid'
           ? []
           : [
               cta({ ctx, label: 'Pay invoice', href: props.payUrl, fullWidth: true, gap: space.sm, key: 'c' }),
-              fallbackLink(ctx, props.payUrl, 'Prefer to pay in a browser? Use this link:'),
+              fallbackLink(ctx, props.payUrl, { lead: 'Prefer to pay in a browser? Use this link:' }),
             ]),
       ],
-      { pt: space.xs, pb: space.xl, key: 'hero' },
+      { pt: space.lg, pb: space.xl, key: 'hero' },
     ),
   );
 
   rows.push(
     band(
       [
-        divider({ gap: space.none, key: 'd' }),
-        label('What this covers', { key: 'l', gap: space.md }),
+        ...ledgerSection('What this covers'),
         <LineItems key="items" rows={c.itemRows} totals={c.totalRows} containerPadding="0px" />,
       ],
       { pt: space.none, pb: space.lg, key: 'items' },

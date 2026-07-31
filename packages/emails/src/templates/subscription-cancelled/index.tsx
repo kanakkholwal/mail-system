@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, Callout, cta, DataList, divider, footer, lede, small, space,
+  band, Callout, cta, DataList, divider, footer, ledgerMasthead, ledgerSection, lede, small, space,
   StatusBadge, title,
 } from '../../kit/index.js';
 import { date } from '../../lib/format.js';
@@ -40,8 +40,7 @@ export default defineTemplate<SubscriptionCancelledProps>({
     const locale = props.locale.tag;
 
     return [
-      brandHeader(ctx),
-      accentRule(ctx),
+      ...ledgerMasthead(ctx, { docType: 'Cancellation', docNumber: date(props.cancelledAt, locale) }),
       // No guilt copy and no hidden reactivation. Confirmshaming a cancellation
       // is a dark pattern and it costs more trust than it recovers revenue.
       band(
@@ -52,6 +51,12 @@ export default defineTemplate<SubscriptionCancelledProps>({
             `That is done, and you will not be charged again. You keep full access until the end of the term you have already paid for.`,
             { key: 'l' },
           ),
+        ],
+        { pt: space.lg, pb: space.none, key: 'hero' },
+      ),
+      band(
+        [
+          ...ledgerSection('The record'),
           <DataList
             key="dl"
             rows={[
@@ -63,7 +68,7 @@ export default defineTemplate<SubscriptionCancelledProps>({
             containerPadding="0px"
           />,
         ],
-        { pt: space.xs, pb: space.lg, key: 'hero' },
+        { pt: space.none, pb: space.lg, key: 'record' },
       ),
       band(
         [

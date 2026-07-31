@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, AmountBlock, band, brandHeader, Callout, cta, DataList, divider, fallbackLink, footer,
-  lede, palette, space, StatusBadge, title,
+  band, Callout, cta, DataList, fallbackLink, footer, ledgerAmount, ledgerMasthead, ledgerSection, lede,
+  palette, space, StatusBadge, title,
 } from '../../kit/index.js';
 import { date, money } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
@@ -55,22 +55,23 @@ export default defineTemplate<PaymentFailedProps>({
 
   build(props, ctx): ReactElement[] {
     const locale = props.locale.tag;
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = ledgerMasthead(ctx, {
+      docType: 'Payment attempt',
+      docNumber: props.retry ? `${props.retry.attempt} of ${props.retry.of}` : 'Declined',
+    });
 
     rows.push(
       band(
         [
-          <StatusBadge key="badge" tone="danger" text="Payment failed" containerPadding={`0px 0px ${space.md} 0px`} />,
+          <StatusBadge key="badge" tone="danger" text="Declined" containerPadding={`0px 0px ${space.md} 0px`} />,
           title('Your payment did not go through', { key: 'h' }),
           lede(`${REASON[props.declineReason]} ${FIX[props.declineReason]}`, { key: 'l' }),
-          <AmountBlock
-            key="amount"
-            label="Amount outstanding"
-            amount={money(props.amount, props.currency, locale)}
-            meta={props.plan}
-            color={palette.danger}
-            containerPadding={`0px 0px ${space.lg} 0px`}
-          />,
+          ...ledgerAmount({
+            label: 'Amount outstanding',
+            amount: money(props.amount, props.currency, locale),
+            meta: props.plan,
+            tone: palette.danger,
+          }),
           cta({
             ctx,
             label: 'Update payment method',
@@ -81,7 +82,7 @@ export default defineTemplate<PaymentFailedProps>({
           }),
           fallbackLink(ctx, props.updatePaymentUrl),
         ],
-        { pt: space.xs, pb: space.xl, key: 'hero' },
+        { pt: space.lg, pb: space.xl, key: 'hero' },
       ),
     );
 
@@ -102,11 +103,10 @@ export default defineTemplate<PaymentFailedProps>({
 
     if (detail.length > 0) {
       rows.push(
-        band([divider({ gap: space.none, key: 'd' }), <DataList key="dl" rows={detail} containerPadding={`${space.md} 0px 0px 0px`} />], {
-          pt: space.none,
-          pb: space.lg,
-          key: 'schedule',
-        }),
+        band(
+          [...ledgerSection('The decline'), <DataList key="dl" rows={detail} containerPadding="0px" />],
+          { pt: space.none, pb: space.lg, key: 'schedule' },
+        ),
       );
     }
 

@@ -1,5 +1,6 @@
 import { registerTool } from '@unlayer/react-elements';
 import { esc } from '../../lib/html.js';
+import { hook } from '../head-css.js';
 import { fonts, palette } from '../tokens.js';
 
 export interface DataRow {
@@ -20,6 +21,13 @@ const TONE_COLORS = {
 function rows(values: Record<string, unknown>): DataRow[] {
   return Array.isArray(values.rows) ? (values.rows as DataRow[]) : [];
 }
+
+const TONE_HOOKS = {
+  default: hook.ink,
+  muted: hook.dim,
+  danger: hook.neg,
+  success: hook.pos,
+} as const;
 
 const KEY_STYLE = `font-family:${fonts.sans.value};font-size:13px;line-height:150%;color:${palette.muted};padding:9px 16px 9px 0;vertical-align:top;white-space:nowrap;`;
 
@@ -42,7 +50,8 @@ function render(values: Record<string, unknown>, ruled: boolean): string {
     .map((row, index) => {
       const last = index === list.length - 1;
       const edge = last ? '' : rule;
-      return `<tr><td style="${KEY_STYLE}${edge}">${esc(row.key)}</td><td align="right" style="${valueStyle(row)}${edge}text-align:right;">${esc(row.value)}</td></tr>`;
+      const edgeClass = last || !ruled ? '' : ` ${hook.rule}`;
+      return `<tr><td class="${hook.dim}${edgeClass}" style="${KEY_STYLE}${edge}">${esc(row.key)}</td><td class="${TONE_HOOKS[row.tone ?? 'default']}${edgeClass}" align="right" style="${valueStyle(row)}${edge}text-align:right;">${esc(row.value)}</td></tr>`;
     })
     .join('');
   return `<table role="table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;width:100%;">${body}</table>`;

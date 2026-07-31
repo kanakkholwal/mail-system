@@ -1,5 +1,6 @@
 import { registerTool } from '@unlayer/react-elements';
 import { esc } from '../../lib/html.js';
+import { hook } from '../head-css.js';
 import { fonts, palette } from '../tokens.js';
 
 export interface ItemRow {
@@ -30,7 +31,7 @@ const figureBase = `font-family:${fonts.mono.value};${cellBase}text-align:right;
 function head(): string {
   const base = `font-family:${fonts.sans.value};font-size:10px;font-weight:700;letter-spacing:.085em;color:${palette.muted};padding:0 0 10px 0;border-bottom:1px solid ${palette.hairlineStrong};`;
   const th = (text: string, index: number, align: 'left' | 'right') =>
-    `<th width="${COLS[index]}" align="${align}" style="${base}text-align:${align};">${text}</th>`;
+    `<th class="${hook.dim} ${hook.rule}" width="${COLS[index]}" align="${align}" style="${base}text-align:${align};">${text}</th>`;
   return `<thead><tr>${th('DESCRIPTION', 0, 'left')}${th('QTY', 1, 'right')}${th('RATE', 2, 'right')}${th('AMOUNT', 3, 'right')}</tr></thead>`;
 }
 
@@ -39,14 +40,14 @@ function body(rows: ItemRow[]): string {
   return `<tbody>${rows
     .map((row) => {
       const detail = row.detail
-        ? `<div style="font-size:12px;line-height:148%;color:${palette.muted};margin-top:3px;">${esc(row.detail)}</div>`
+        ? `<div class="${hook.dim}" style="font-size:12px;line-height:148%;color:${palette.muted};margin-top:3px;">${esc(row.detail)}</div>`
         : '';
       return (
         '<tr>' +
-        `<td align="left" style="font-family:${fonts.sans.value};${cellBase}color:${palette.ink};font-weight:600;${rule}padding-right:12px;">${esc(row.description)}${detail}</td>` +
-        `<td align="right" style="${figureBase}color:${palette.body};${rule}">${esc(row.quantity)}</td>` +
-        `<td align="right" style="${figureBase}color:${palette.body};${rule}">${esc(row.rate)}</td>` +
-        `<td align="right" style="${figureBase}color:${palette.ink};font-weight:600;${rule}">${esc(row.amount)}</td>` +
+        `<td class="${hook.ink} ${hook.rule}" align="left" style="font-family:${fonts.sans.value};${cellBase}color:${palette.ink};font-weight:600;${rule}padding-right:12px;">${esc(row.description)}${detail}</td>` +
+        `<td class="${hook.body} ${hook.rule}" align="right" style="${figureBase}color:${palette.body};${rule}">${esc(row.quantity)}</td>` +
+        `<td class="${hook.body} ${hook.rule}" align="right" style="${figureBase}color:${palette.body};${rule}">${esc(row.rate)}</td>` +
+        `<td class="${hook.ink} ${hook.rule}" align="right" style="${figureBase}color:${palette.ink};font-weight:600;${rule}">${esc(row.amount)}</td>` +
         '</tr>'
       );
     })
@@ -69,7 +70,10 @@ function totals(rows: TotalRow[], mode: Mode): string {
       const valueColor = row.credit === true ? palette.success : palette.ink;
       const valueStyle = `font-family:${fonts.mono.value};font-size:${strong ? '18px' : '13px'};font-weight:${strong ? 700 : 500};color:${valueColor};text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding:${pad} 0;${topRule}`;
       const sign = row.credit === true ? '&minus;' : '';
-      return `<tr><td align="left" style="${labelStyle}">${esc(row.label)}</td><td align="right" style="${valueStyle}">${sign}${esc(row.value)}</td></tr>`;
+      const labelHook = strong ? hook.ink : hook.body;
+      const valueHook = row.credit === true ? hook.pos : hook.ink;
+      const ruleHook = strong ? ` ${hook.rule}` : '';
+      return `<tr><td class="${labelHook}${ruleHook}" align="left" style="${labelStyle}">${esc(row.label)}</td><td class="${valueHook}${ruleHook}" align="right" style="${valueStyle}">${sign}${esc(row.value)}</td></tr>`;
     })
     .join('');
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="right" width="${width}" style="border-collapse:collapse;width:${width};margin-left:auto;margin-top:14px;">${inner}</table><div style="clear:both;font-size:0;line-height:0;">&nbsp;</div>`;

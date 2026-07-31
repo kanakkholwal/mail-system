@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, Callout, cta, DataList, divider, fallbackLink, footer, lede, small,
-  space, StatusBadge, title,
+  band, brandHeader, Callout, DataList, divider, editorialCta, editorialHeadline, editorialKicker,
+  editorialLede, fallbackLink, footer, hero, ledgerSection, palette, small, space,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT } from '../../samples/photos.js';
 import { date, dateTime } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
@@ -52,21 +53,38 @@ export default defineTemplate<ShippingUpdateProps>({
     const delivered = props.status === 'delivered';
     const problem = props.status === 'delayed' || props.status === 'exception';
 
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [brandHeader(ctx), hero({ src: PHOTO.shipping, alt: PHOTO_ALT.shipping })];
+
+    const TONE_COLOR = {
+      success: palette.success,
+      info: palette.muted,
+      warning: palette.warning,
+      danger: palette.danger,
+    } as const;
 
     rows.push(
       band(
         [
-          <StatusBadge key="badge" tone={state.tone} text={state.badge} containerPadding={`0px 0px ${space.md} 0px`} />,
-          title(state.title, { key: 'h' }),
-          lede(
+          ...editorialKicker(state.badge, { color: TONE_COLOR[state.tone] }),
+          editorialHeadline(state.title),
+          editorialLede(
             delivered && props.deliveredAt
               ? `Delivered ${dateTime(props.deliveredAt, locale)}. If anything is missing or damaged, tell us and we will sort it.`
               : props.expectedOn
                 ? `Expected <strong>${date(props.expectedOn, locale)}</strong>. ${props.carrier} has the parcel and tracking is live.`
                 : `${props.carrier} has the parcel.`,
-            { key: 'l' },
           ),
+          editorialCta(ctx, { label: delivered ? 'View order' : 'Track parcel', href: props.trackingUrl }),
+          fallbackLink(ctx, props.trackingUrl),
+        ],
+        { pt: space.xl, pb: space.xl, key: 'hero-copy' },
+      ),
+    );
+
+    rows.push(
+      band(
+        [
+          ...ledgerSection('The parcel'),
           <DataList
             key="dl"
             rows={[
@@ -80,19 +98,10 @@ export default defineTemplate<ShippingUpdateProps>({
                   ? [{ key: 'Expected', value: date(props.expectedOn, locale) }]
                   : []),
             ]}
-            containerPadding={`0px 0px ${space.lg} 0px`}
+            containerPadding="0px"
           />,
-          cta({
-            ctx,
-            label: delivered ? 'View order' : 'Track parcel',
-            href: props.trackingUrl,
-            fullWidth: true,
-            gap: space.sm,
-            key: 'c',
-          }),
-          fallbackLink(ctx, props.trackingUrl),
         ],
-        { pt: space.xs, pb: space.xl, key: 'hero' },
+        { pt: space.none, pb: space.lg, key: 'parcel' },
       ),
     );
 

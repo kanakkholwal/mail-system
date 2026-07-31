@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, Callout, cta, DataList, divider, footer, heading, label, lede, Meter,
-  small, space, text, title,
+  band, brandHeader, Callout, cta, DataList, divider, editorialHeadline, editorialKicker, editorialLede,
+  footer, heading, hero, label, Meter, small, space, text,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT } from '../../samples/photos.js';
 import { date } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
 import { demoBaseMarketing } from '../../samples/common.js';
@@ -68,21 +69,20 @@ export default defineTemplate<WeeklyDigestProps>({
   build(props, ctx): ReactElement[] {
     const locale = props.locale.tag;
     const period = `${date(props.periodStart, locale)} to ${date(props.periodEnd, locale)}`;
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [brandHeader(ctx), hero({ src: PHOTO.weeklyDigest, alt: PHOTO_ALT.weeklyDigest })];
 
     rows.push(
       band(
         [
-          label(period, { key: 'p', gap: space.xs }),
-          title('Your week in review', { key: 'h', gap: space.xs }),
-          lede(
+          ...editorialKicker(period),
+          editorialHeadline('Your week in review'),
+          editorialLede(
             props.needsAttention.length > 0
               ? `${props.needsAttention.length} ${props.needsAttention.length === 1 ? 'thing needs' : 'things need'} a look. The numbers are below.`
               : 'Nothing needs your attention this week. The numbers are below.',
-            { key: 'l' },
           ),
         ],
-        { pt: space.xs, pb: space.md, key: 'intro' },
+        { pt: space.xl, pb: space.md, key: 'intro' },
       ),
     );
 

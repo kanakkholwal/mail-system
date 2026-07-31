@@ -1,5 +1,8 @@
 import type { ReactElement } from 'react';
-import { accentRule, band, brandHeader, Callout, cta, DataList, divider, fallbackLink, footer, lede, small, space, title } from '../../kit/index.js';
+import {
+  band, Callout, DataList, fallbackLink, focusedCta, focusedHeader, focusedHeadline, focusedLede, focusedNote,
+  focusedRule, footer, label, panel, space,
+} from '../../kit/index.js';
 import { dateTime } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
@@ -33,32 +36,21 @@ export default defineTemplate<ResetPasswordProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const greeting = props.recipientName ? `Hi ${props.recipientName},` : 'Hi there,';
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [focusedHeader(ctx)];
 
     rows.push(
       band(
         [
-          title('Reset your password', { key: 'h' }),
-          lede(
-            `${greeting} we received a request to reset the password on your ${props.branding.name} account. Choose a new one below.`,
-            { key: 'l' },
+          focusedHeadline('Reset your password'),
+          focusedLede(
+            `${props.recipientName ? `${props.recipientName}, someone` : 'Someone'} asked to reset the password on your ${props.branding.name} account. Choose a new one below.`,
           ),
-          cta({
-            ctx,
-            label: 'Set a new password',
-            href: props.resetUrl,
-            fullWidth: true,
-            gap: space.sm,
-            key: 'c',
-          }),
-          small(
-            `This link works once and expires in <strong>${props.expiresInMinutes} minutes</strong>.`,
-            { key: 'e', gap: space.md },
-          ),
-          fallbackLink(ctx, props.resetUrl),
+          focusedCta(ctx, { label: 'Set a new password', href: props.resetUrl }),
+          focusedNote(`Works once, expires in ${props.expiresInMinutes} minutes.`),
+          focusedRule(),
+          fallbackLink(ctx, props.resetUrl, { align: 'center' }),
         ],
-        { pt: space.xs, pb: space.xl, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'main' },
       ),
     );
 
@@ -73,13 +65,12 @@ export default defineTemplate<ResetPasswordProps>({
 
       if (detailRows.length > 0) {
         rows.push(
-          band(
+          panel(
             [
-              divider({ gap: space.none, key: 'd' }),
-              small('Where this request came from', { key: 'rh', gap: space.xs }),
+              label('Where this request came from', { key: 'rh', gap: space.sm }),
               <DataList key="dl" rows={detailRows} containerPadding="0px" />,
             ],
-            { pt: space.none, pb: space.lg, key: 'provenance' },
+            { key: 'provenance' },
           ),
         );
       }

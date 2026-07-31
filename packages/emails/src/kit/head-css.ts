@@ -15,6 +15,24 @@ export const hook = {
   hideSm: 'bm-hide-sm',
   /** Inline anchor that must invert with the theme, such as the wordmark. */
   invertInk: 'bm-invert-ink',
+
+  /**
+   * Custom tools emit their own markup, so the stylesheet cannot reach them
+   * through Elements' internal classes. These are the seams it uses instead.
+   * Without them a DataList value stays near-black on a near-black surface.
+   */
+  ink: 'bm-ink',
+  body: 'bm-body',
+  dim: 'bm-dim',
+  rule: 'bm-rule',
+  fill: 'bm-fill',
+  fillRaised: 'bm-fill-raised',
+  pos: 'bm-pos',
+  warn: 'bm-warn',
+  neg: 'bm-neg',
+  posFill: 'bm-pos-fill',
+  warnFill: 'bm-warn-fill',
+  negFill: 'bm-neg-fill',
 } as const;
 
 /**
@@ -101,6 +119,20 @@ function dark(): string {
     background-color: ${darkPalette.ink} !important; color: ${palette.ink} !important;
   }
   ${surface} a[style*="${palette.accent}"] { color: ${darkPalette.accent} !important; }
+
+  /* Custom tool output. Reached by class because it is not Elements' markup. */
+  ${surface} .${hook.ink} { color: ${darkPalette.ink} !important; }
+  ${surface} .${hook.body} { color: ${darkPalette.body} !important; }
+  ${surface} .${hook.dim} { color: ${darkPalette.muted} !important; }
+  ${surface} .${hook.rule} { border-color: ${darkPalette.hairline} !important; }
+  ${surface} .${hook.fill} { background-color: ${darkPalette.canvas} !important; }
+  ${surface} .${hook.fillRaised} { background-color: ${darkPalette.raised} !important; }
+  ${surface} .${hook.pos} { color: ${darkPalette.success} !important; }
+  ${surface} .${hook.warn} { color: ${darkPalette.warning} !important; }
+  ${surface} .${hook.neg} { color: ${darkPalette.danger} !important; }
+  ${surface} .${hook.posFill} { background-color: ${darkPalette.successTint} !important; }
+  ${surface} .${hook.warnFill} { background-color: ${darkPalette.warningTint} !important; }
+  ${surface} .${hook.negFill} { background-color: ${darkPalette.dangerTint} !important; }
 }`.trim();
 }
 

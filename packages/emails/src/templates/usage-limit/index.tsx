@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, Callout, cta, DataList, divider, fallbackLink, footer, lede, Meter,
-  space, StatusBadge, title,
+  band, brandHeader, Callout, cta, DataList, divider, editorialCta, editorialHeadline, editorialKicker,
+  editorialLede, fallbackLink, footer, hero, ledgerSection, Meter, palette, space,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT } from '../../samples/photos.js';
 import { compactNumber, date } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
@@ -50,19 +51,13 @@ export default defineTemplate<UsageLimitProps>({
 
     return [
       brandHeader(ctx),
-      accentRule(ctx),
+      hero({ src: PHOTO.usageLimit, alt: PHOTO_ALT.usageLimit }),
       band(
         [
-          <StatusBadge
-            key="badge"
-            tone={critical ? 'danger' : 'warning'}
-            text={`${pct}% used`}
-            containerPadding={`0px 0px ${space.md} 0px`}
-          />,
-          title(`You are close to your ${props.metricLabel} limit`, { key: 'h' }),
-          lede(
+          ...editorialKicker(`${pct}% used`, { color: critical ? palette.danger : palette.warning }),
+          editorialHeadline(`You are close to your ${props.metricLabel} limit`),
+          editorialLede(
             `The quota resets on ${date(props.resetsOn, locale)}. If you need headroom before then, moving up a plan takes effect immediately.`,
-            { key: 'l' },
           ),
           // The meter is built from table cells with bgcolor, because Outlook's
           // word engine ignores percentage widths on divs.
@@ -73,6 +68,12 @@ export default defineTemplate<UsageLimitProps>({
             value={`${pct}%`}
             containerPadding={`0px 0px ${space.lg} 0px`}
           />,
+        ],
+        { pt: space.xl, pb: space.lg, key: 'hero-copy' },
+      ),
+      band(
+        [
+          ...ledgerSection('The quota'),
           <DataList
             key="dl"
             rows={[

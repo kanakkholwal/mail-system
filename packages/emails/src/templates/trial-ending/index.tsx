@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, Callout, cta, DataList, divider, fallbackLink, footer, label, lede,
-  small, space, StatusBadge, text, title,
+  band, brandHeader, Callout, cta, DataList, divider, editorialCta, editorialHeadline, editorialKicker,
+  editorialLede, fallbackLink, footer, hero, label, palette, small, space, statRow, text,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT } from '../../samples/photos.js';
 import { date, money } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
@@ -49,47 +50,56 @@ export default defineTemplate<TrialEndingProps>({
     const locale = props.locale.tag;
     const urgent = props.daysLeft <= 2;
     const price = `${money(props.priceAfter, props.currency, locale)} per ${props.interval}`;
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [
+      brandHeader(ctx),
+      hero({ src: PHOTO.trialEnding, alt: PHOTO_ALT.trialEnding }),
+    ];
 
     rows.push(
       band(
         [
-          <StatusBadge
-            key="badge"
-            tone={urgent ? 'danger' : 'warning'}
-            text={props.daysLeft === 0 ? 'Ends today' : `${props.daysLeft} days left`}
-            containerPadding={`0px 0px ${space.md} 0px`}
-          />,
-          title(
+          ...editorialKicker(
+            props.daysLeft === 0 ? 'Ends today' : `${props.daysLeft} days left`,
+            { color: urgent ? palette.danger : palette.muted },
+          ),
+          editorialHeadline(
             props.daysLeft <= 1 ? 'Your trial ends tomorrow' : `Your trial ends ${date(props.trialEndsOn, locale)}`,
-            { key: 'h' },
           ),
-          lede(
+          editorialLede(
             `Keeping ${props.plan} is ${price}. Nothing about your workspace changes, and you can cancel whenever you like.`,
-            { key: 'l' },
           ),
-          cta({ ctx, label: 'Keep the plan', href: props.upgradeUrl, fullWidth: true, gap: space.sm, key: 'c' }),
+          editorialCta(ctx, { label: 'Keep the plan', href: props.upgradeUrl }),
           fallbackLink(ctx, props.upgradeUrl),
         ],
-        { pt: space.xs, pb: space.xl, key: 'hero' },
+        { pt: space.xl, pb: space.xl, key: 'hero-copy' },
       ),
     );
 
     // Their own numbers are the argument. A generic feature grid is not.
     if (props.usage.length > 0) {
       rows.push(
-        band(
-          [
-            divider({ gap: space.none, key: 'd' }),
-            label(`What you built during the trial`, { key: 'ul', gap: space.md }),
-            <DataList
-              key="usage"
-              rows={props.usage.map((row) => ({ key: row.label, value: row.value, mono: true }))}
-              containerPadding="0px"
-            />,
-          ],
-          { pt: space.none, pb: space.lg, key: 'usage' },
-        ),
+        band([divider({ gap: space.none, key: 'd' }), label('What you built during the trial', { key: 'ul', gap: space.none })], {
+          pt: space.none,
+          pb: space.md,
+          key: 'usage-head',
+        }),
+      );
+      rows.push(
+        props.usage.length >= 2
+          ? statRow(
+              props.usage.slice(0, 3).map((row) => ({ value: row.value, label: row.label })),
+              'usage-stats',
+            )
+          : band(
+              [
+                <DataList
+                  key="usage"
+                  rows={props.usage.map((row) => ({ key: row.label, value: row.value, mono: true }))}
+                  containerPadding="0px"
+                />,
+              ],
+              { pt: space.none, pb: space.lg, key: 'usage' },
+            ),
       );
     }
 

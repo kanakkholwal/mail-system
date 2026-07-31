@@ -1,5 +1,8 @@
 import type { ReactElement } from 'react';
-import { accentRule, band, brandHeader, Callout, cta, DataList, divider, footer, lede, space, StatusBadge, title } from '../../kit/index.js';
+import {
+  band, Callout, cta, DataList, focusedHeader, focusedHeadline, focusedLede, focusedRule, footer, label, panel,
+  space, StatusBadge,
+} from '../../kit/index.js';
 import { dateTime } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
@@ -40,31 +43,41 @@ export default defineTemplate<PasswordChangedProps>({
     ];
 
     return [
-      brandHeader(ctx),
-      accentRule(ctx),
+      focusedHeader(ctx),
       band(
         [
-          <StatusBadge key="badge" tone="success" text="Done" containerPadding={`0px 0px ${space.md} 0px`} />,
-          title('Your password was changed', { key: 'h' }),
-          lede(
+          <StatusBadge
+            key="badge"
+            tone="success"
+            text="Done"
+            align="center"
+            containerPadding={`${space.xl} 0px ${space.sm} 0px`}
+          />,
+          focusedHeadline('Your password was changed'),
+          focusedLede(
             props.sessionsRevoked
-              ? 'Your new password is active and every other signed-in device has been signed out.'
-              : 'Your new password is active. Other signed-in devices stay signed in.',
-            { key: 'l' },
+              ? 'The new password is active and every other signed-in device has been signed out.'
+              : 'The new password is active. Other signed-in devices stay signed in.',
           ),
+          focusedRule(),
+        ],
+        { pt: space.none, pb: space.none, key: 'main' },
+      ),
+      panel(
+        [
+          label('What changed', { key: 'wl', gap: space.sm }),
           <DataList key="dl" rows={details} containerPadding="0px" />,
         ],
-        { pt: space.xs, pb: space.lg, key: 'main' },
+        { key: 'detail-panel' },
       ),
       band(
         [
-          divider({ gap: space.none, key: 'd' }),
           <Callout
             key="warn"
             tone="danger"
             title="Did not change it?"
             body="Someone else may hold your password. Recover the account now and we will lock out every other session."
-            containerPadding={`${space.md} 0px ${space.md} 0px`}
+            containerPadding={`0px 0px ${space.md} 0px`}
           />,
           cta({
             ctx,

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, AmountBlock, band, bandSplit, brandHeader, caption, cta, DataList, divider, footer,
-  heading, label, LineItems, palette, small, space, StatusBadge, title, type Ctx,
+  accentRule, band, bandSplit, brandHeader, caption, cta, DataList, divider, footer, heading, label,
+  ledgerAmount, ledgerMasthead, ledgerSection, LineItems, palette, small, space, StatusBadge, title, type Ctx,
 } from '../../kit/index.js';
 import { dateTime, money, percent } from '../../lib/format.js';
 import { computeTotals, lineTotal } from '../../lib/totals.js';
@@ -99,24 +99,23 @@ interface MailBits {
 
 function receiptMail(props: PaymentReceiptProps, ctx: Ctx, bits: MailBits): ReactElement[] {
   return [
-    brandHeader(ctx),
-    accentRule(ctx),
+    ...ledgerMasthead(ctx, { docType: 'Receipt', docNumber: props.receiptNumber }),
     band(
       [
         <StatusBadge key="badge" tone="success" text="Payment received" containerPadding={`0px 0px ${space.md} 0px`} />,
-        title('Thanks, that is settled', { key: 'h', gap: space.xs }),
-        caption(`Receipt ${props.receiptNumber}`, { key: 'sub', gap: space.lg }),
-        <AmountBlock
-          key="amount"
-          label="Amount paid"
-          amount={bits.fmt(props.amount)}
-          meta={`Charged to ${bits.method}`}
-          color={palette.success}
-          containerPadding={`0px 0px ${space.lg} 0px`}
-        />,
-        <DataList key="dl" rows={bits.detailRows} containerPadding="0px" />,
+        title('Thanks, that is settled', { key: 'h', gap: space.lg }),
+        ...ledgerAmount({
+          label: 'Amount paid',
+          amount: bits.fmt(props.amount),
+          meta: `Charged to ${bits.method}`,
+          tone: palette.success,
+        }),
       ],
-      { pt: space.xs, pb: space.lg, key: 'hero' },
+      { pt: space.lg, pb: space.none, key: 'hero' },
+    ),
+    band(
+      [...ledgerSection('The charge'), <DataList key="dl" rows={bits.detailRows} containerPadding="0px" />],
+      { pt: space.none, pb: space.lg, key: 'detail' },
     ),
     band(
       [

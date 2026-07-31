@@ -1,5 +1,8 @@
 import type { ReactElement } from 'react';
-import { accentRule, band, brandHeader, CodeToken, cta, divider, fallbackLink, footer, heading, label, lede, small, space, text, title } from '../../kit/index.js';
+import {
+  band, CodeToken, divider, fallbackLink, focusedCta, focusedHeader, focusedHeadline, focusedLede,
+  focusedNote, focusedRule, footer, heading, label, small, space,
+} from '../../kit/index.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
 import { welcomeVerifySchema, type WelcomeVerifyProps } from './schema.js';
@@ -9,7 +12,7 @@ export default defineTemplate<WelcomeVerifyProps>({
     key: 'welcome_verify',
     name: 'Welcome and verify email',
     genre: 'auth',
-    description: 'Activation-focused welcome that leads with one verify action, then sets up first steps.',
+    description: 'A single centred act. Everything that is not the verify button is pushed below the fold.',
     modes: ['email', 'web'],
     primaryAction: 'Verify email address',
     requiresUnsubscribe: false,
@@ -31,29 +34,23 @@ export default defineTemplate<WelcomeVerifyProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const greeting = props.recipientName ? `Welcome, ${props.recipientName}.` : 'Welcome.';
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [focusedHeader(ctx)];
 
     rows.push(
       band(
         [
-          title(`${greeting} Confirm your email`, { key: 'h' }),
-          lede(
-            `You are one step from a working ${props.branding.name} workspace. Confirm this address so we can secure your account and turn on notifications.`,
-            { key: 'l' },
+          // The headline always carries the action. A greeting in its place reads
+          // warmer and converts worse, because the reader has to hunt for the ask.
+          focusedHeadline('Confirm your email'),
+          focusedLede(
+            `${props.recipientName ? `${props.recipientName}, you` : 'You'} are one step from a working ${props.branding.name} workspace. Confirm this address and we will secure the account and switch on notifications.`,
           ),
-          cta({
-            ctx,
-            label: 'Verify email address',
-            href: props.verifyUrl,
-            fullWidth: true,
-            gap: space.sm,
-            key: 'c',
-          }),
-          small(`The link expires in <strong>${props.expiresInHours} hours</strong>.`, { key: 'e', gap: space.md }),
-          fallbackLink(ctx, props.verifyUrl),
+          focusedCta(ctx, { label: 'Verify email address', href: props.verifyUrl }),
+          focusedNote(`Expires in ${props.expiresInHours} hours. Nobody else can use this link.`),
+          focusedRule(),
+          fallbackLink(ctx, props.verifyUrl, { align: 'center' }),
         ],
-        { pt: space.xs, pb: space.xl, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'main' },
       ),
     );
 
@@ -61,11 +58,10 @@ export default defineTemplate<WelcomeVerifyProps>({
       rows.push(
         band(
           [
-            divider({ gap: space.none, key: 'd' }),
-            label('Or enter this code', { key: 'cl', gap: space.sm }),
+            label('Or enter this code', { align: 'center', key: 'cl', gap: space.sm }),
             <CodeToken key="code" code={props.verifyCode} groupSize={3} containerPadding="0px" />,
           ],
-          { pt: space.none, pb: space.lg, key: 'code-band' },
+          { pt: space.none, pb: space.xxl, key: 'code-band' },
         ),
       );
     }
@@ -78,7 +74,7 @@ export default defineTemplate<WelcomeVerifyProps>({
       props.nextSteps.forEach((step, index) => {
         steps.push(heading(step.title, { key: `st${index}`, gap: space.xxs }));
         steps.push(
-          text(step.body, {
+          small(step.body, {
             key: `sb${index}`,
             gap: index === props.nextSteps.length - 1 ? space.none : space.md,
           }),

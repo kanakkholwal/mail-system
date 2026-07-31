@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, band, brandHeader, cta, divider, footer, heading, label, lede, signature, small, space,
-  text, title,
+  band, brandHeader, divider, editorialCta, editorialHeadline, editorialKicker, editorialLede, footer,
+  heading, hero, label, signature, small, space, text,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT } from '../../samples/photos.js';
 import { defineTemplate } from '../../template.js';
 import { demoBaseMarketing } from '../../samples/common.js';
 import { winbackSchema, type WinbackProps } from './schema.js';
@@ -45,30 +46,27 @@ export default defineTemplate<WinbackProps>({
   build(props, ctx): ReactElement[] {
     const greeting = props.recipientName ? `Hi ${props.recipientName},` : 'Hi,';
     const months = Math.round(props.inactiveDays / 30);
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [brandHeader(ctx), hero({ src: PHOTO.winback, alt: PHOTO_ALT.winback })];
 
     rows.push(
       band(
         [
-          title(
-            props.lastProject ? `${props.lastProject.name} is still exactly as you left it` : 'Still here whenever you want it',
-            { key: 'h' },
+          ...editorialKicker(`${months} months away`),
+          editorialHeadline(
+            props.lastProject
+              ? `${props.lastProject.name} is still exactly as you left it`
+              : 'Still here whenever you want it',
           ),
           // No guilt, no "we miss you". State what changed and offer the way back.
-          lede(
-            `${greeting} it has been about ${months} months. Nothing of yours was touched, and a few things got meaningfully better.`,
-            { key: 'l' },
+          editorialLede(
+            `${greeting} nothing of yours was touched while you were gone, and a few things got meaningfully better.`,
           ),
-          cta({
-            ctx,
+          editorialCta(ctx, {
             label: props.lastProject ? 'Pick up where you left off' : 'Open the app',
             href: props.lastProject?.url ?? props.returnUrl,
-            fullWidth: true,
-            gap: space.none,
-            key: 'c',
           }),
         ],
-        { pt: space.xs, pb: space.xl, key: 'hero' },
+        { pt: space.xl, pb: space.xl, key: 'hero-copy' },
       ),
     );
 

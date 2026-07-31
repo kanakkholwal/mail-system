@@ -1,5 +1,8 @@
 import type { ReactElement } from 'react';
-import { accentRule, band, brandHeader, Callout, CodeToken, cta, DataList, divider, fallbackLink, footer, label, lede, small, space, title } from '../../kit/index.js';
+import {
+  band, Callout, CodeToken, DataList, fallbackLink, focusedCta, focusedHeader, focusedHeadline, focusedLede,
+  focusedNote, focusedRule, footer, label, panel, space,
+} from '../../kit/index.js';
 import { defineTemplate } from '../../template.js';
 import { demoBase } from '../../samples/common.js';
 import { magicLinkSchema, type MagicLinkProps } from './schema.js';
@@ -28,21 +31,19 @@ export default defineTemplate<MagicLinkProps>({
   },
 
   build(props, ctx): ReactElement[] {
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [focusedHeader(ctx)];
 
     rows.push(
       band(
         [
-          title(`Sign in to ${props.branding.name}`, { key: 'h' }),
-          lede('No password needed. This link signs you in on this device and then stops working.', { key: 'l' }),
-          cta({ ctx, label: 'Sign in', href: props.signInUrl, fullWidth: true, gap: space.sm, key: 'c' }),
-          small(`Expires in <strong>${props.expiresInMinutes} minutes</strong> and works only once.`, {
-            key: 'e',
-            gap: space.md,
-          }),
-          fallbackLink(ctx, props.signInUrl),
+          focusedHeadline(`Sign in to ${props.branding.name}`),
+          focusedLede('No password needed. This link signs you in on this device, then stops working.'),
+          focusedCta(ctx, { label: 'Sign in', href: props.signInUrl }),
+          focusedNote(`Expires in ${props.expiresInMinutes} minutes and works only once.`),
+          focusedRule(),
+          fallbackLink(ctx, props.signInUrl, { align: 'center' }),
         ],
-        { pt: space.xs, pb: space.xl, key: 'main' },
+        { pt: space.none, pb: space.xl, key: 'main' },
       ),
     );
 
@@ -50,11 +51,10 @@ export default defineTemplate<MagicLinkProps>({
       rows.push(
         band(
           [
-            divider({ gap: space.none, key: 'd' }),
-            label('Signing in on another device', { key: 'cl', gap: space.sm }),
+            label('Signing in on another device', { align: 'center', key: 'cl', gap: space.sm }),
             <CodeToken key="code" code={props.fallbackCode} groupSize={3} containerPadding="0px" />,
           ],
-          { pt: space.none, pb: space.lg, key: 'code' },
+          { pt: space.none, pb: space.xl, key: 'code' },
         ),
       );
     }
@@ -67,13 +67,12 @@ export default defineTemplate<MagicLinkProps>({
 
     if (details.length > 0) {
       rows.push(
-        band(
+        panel(
           [
-            divider({ gap: space.none, key: 'dd' }),
-            small('Requested from', { key: 'rh', gap: space.xs }),
+            label('Requested from', { key: 'rh', gap: space.sm }),
             <DataList key="dl" rows={details} containerPadding="0px" />,
           ],
-          { pt: space.none, pb: space.lg, key: 'provenance' },
+          { key: 'provenance' },
         ),
       );
     }

@@ -241,10 +241,15 @@ export function cta(options: CtaOptions): ReactElement {
  * Some corporate gateways rewrite or strip button markup, so the destination is
  * always repeated as selectable text.
  */
-export function fallbackLink(ctx: Ctx, href: string, lead = 'Button not working? Paste this into your browser:'): ReactElement {
+export function fallbackLink(
+  ctx: Ctx,
+  href: string,
+  options: { lead?: string; align?: Align; gap?: string } = {},
+): ReactElement {
+  const { lead = 'Button not working? Paste this into your browser:', align = 'left', gap = space.none } = options;
   return caption(
     `${lead}<br /><a href="${href}" style="color:${linkColor(ctx)};text-decoration:underline;word-break:break-all;">${href}</a>`,
-    { gap: space.none },
+    { align, gap },
   );
 }
 

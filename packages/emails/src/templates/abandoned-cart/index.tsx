@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import {
-  accentRule, AmountBlock, band, bandSplit, brandHeader, caption, CodeToken, cta, divider, footer,
-  heading, image, label, lede, small, space, title,
+  band, bandSplit, brandHeader, caption, CodeToken, divider, editorialCta, editorialHeadline,
+  editorialKicker, editorialLede, footer, heading, hero, image, label, ledgerAmount, small, space,
 } from '../../kit/index.js';
+import { PHOTO, PHOTO_ALT, PRODUCT } from '../../samples/photos.js';
 import { dateTime, money } from '../../lib/format.js';
 import { round2 } from '../../lib/format.js';
 import { defineTemplate } from '../../template.js';
@@ -38,7 +39,7 @@ export default defineTemplate<AbandonedCartProps>({
         detail: 'Natural white, dotted',
         quantity: 1,
         unitPrice: 18.75,
-        imageUrl: 'https://placehold.co/240x240/E7E8EC/6A7180/png?text=Sketchbook',
+        imageUrl: PRODUCT.sketchbook,
         stockLeft: 3,
       },
       {
@@ -46,13 +47,13 @@ export default defineTemplate<AbandonedCartProps>({
         detail: 'Box of 12',
         quantity: 1,
         unitPrice: 22,
-        imageUrl: 'https://placehold.co/240x240/E7E8EC/6A7180/png?text=Pens',
+        imageUrl: PRODUCT.pens,
       },
       {
         description: 'Field Notes, ruled, 3-pack',
         quantity: 2,
         unitPrice: 11.5,
-        imageUrl: 'https://placehold.co/240x240/E7E8EC/6A7180/png?text=Notes',
+        imageUrl: PRODUCT.notebooks,
       },
     ],
     checkoutUrl: 'https://nexonauts.com/checkout/resume?c=7f21ab',
@@ -63,28 +64,24 @@ export default defineTemplate<AbandonedCartProps>({
   build(props, ctx): ReactElement[] {
     const locale = props.locale.tag;
     const total = round2(props.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0));
-    const rows: ReactElement[] = [brandHeader(ctx), accentRule(ctx)];
+    const rows: ReactElement[] = [brandHeader(ctx), hero({ src: PHOTO.storefront, alt: PHOTO_ALT.storefront })];
 
     rows.push(
       band(
         [
-          title(props.recipientName ? `${props.recipientName}, your basket is saved` : 'Your basket is saved', {
-            key: 'h',
-          }),
-          lede(
+          ...editorialKicker('Still saved'),
+          editorialHeadline(props.recipientName ? `${props.recipientName}, your basket is saved` : 'Your basket is saved'),
+          editorialLede(
             `${props.items.length === 1 ? 'One item is' : `${props.items.length} items are`} still there. Checkout picks up exactly where you stopped.`,
-            { key: 'l' },
           ),
-          <AmountBlock
-            key="total"
-            label="Basket total"
-            amount={money(total, props.currency, locale)}
-            {...(props.reservedUntil ? { meta: `Held until ${dateTime(props.reservedUntil, locale)}` } : {})}
-            containerPadding={`0px 0px ${space.lg} 0px`}
-          />,
-          cta({ ctx, label: 'Return to checkout', href: props.checkoutUrl, fullWidth: true, gap: space.none, key: 'c' }),
+          ...ledgerAmount({
+            label: 'Basket total',
+            amount: money(total, props.currency, locale),
+            ...(props.reservedUntil ? { meta: `Held until ${dateTime(props.reservedUntil, locale)}` } : {}),
+          }),
+          editorialCta(ctx, { label: 'Return to checkout', href: props.checkoutUrl }),
         ],
-        { pt: space.xs, pb: space.xl, key: 'hero' },
+        { pt: space.xl, pb: space.xl, key: 'hero-copy' },
       ),
     );
 
