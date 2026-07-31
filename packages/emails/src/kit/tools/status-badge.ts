@@ -2,11 +2,12 @@ import { registerTool } from '@unlayer/react-elements';
 import { esc } from '../../lib/html.js';
 import { fonts, palette } from '../tokens.js';
 
+/** Text takes the AA-passing step; the saturated hue stays on the fill and border. */
 const TONES = {
   neutral: { fg: palette.body, bg: palette.canvas, border: palette.hairline },
-  success: { fg: palette.success, bg: palette.successTint, border: palette.success },
-  warning: { fg: palette.warning, bg: palette.warningTint, border: palette.warning },
-  danger: { fg: palette.danger, bg: palette.dangerTint, border: palette.danger },
+  success: { fg: palette.successText, bg: palette.successTint, border: palette.success },
+  warning: { fg: palette.warningText, bg: palette.warningTint, border: palette.warning },
+  danger: { fg: palette.dangerText, bg: palette.dangerTint, border: palette.danger },
   info: { fg: palette.accent, bg: palette.accentTint, border: palette.accent },
 } as const;
 

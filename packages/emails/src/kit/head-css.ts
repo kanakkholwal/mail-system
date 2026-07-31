@@ -114,9 +114,9 @@ function dark(): string {
   ${surface} ${el.paragraph} [style*="${palette.muted}"] { color: ${darkPalette.muted} !important; }
   ${surface} ${el.divider} { border-top-color: ${darkPalette.hairline} !important; }
   .${hook.invertInk} { color: ${darkPalette.ink} !important; }
-  /* A near-black CTA disappears on a dark surface, so it inverts. */
-  ${surface} ${el.button} a[style*="${palette.ink}"] {
-    background-color: ${darkPalette.ink} !important; color: ${palette.ink} !important;
+  /* The accent is tuned for a light ground; dark mode takes its own step. */
+  ${surface} ${el.button} a[style*="${palette.accent}"] {
+    background-color: ${darkPalette.accent} !important; color: ${darkPalette.canvas} !important;
   }
   ${surface} a[style*="${palette.accent}"] { color: ${darkPalette.accent} !important; }
 

@@ -1,12 +1,14 @@
 import type { BaseTemplateProps } from '../schema/common.js';
 
-/** Shared demo identity. Swap these values to rebrand every template at once. */
+/**
+ * Shared demo identity. Swap these values to rebrand every template at once.
+ * Both colours are omitted on purpose so the samples show the system's own
+ * accent; setting them is how a brand overrides it.
+ */
 export const demoBase: Omit<BaseTemplateProps, 'previewText'> = {
   branding: {
     name: 'Nexonauts',
     logoWidth: 132,
-    primaryColor: '#0B0B0F',
-    accentColor: '#1F4BF5',
     websiteUrl: 'https://nexonauts.com',
     supportUrl: 'https://nexonauts.com/help',
     socials: [

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { Geist_Mono, Inter_Tight } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeToggle } from '@/components/theme-toggle';
 import './globals.css';
 
-const sans = Inter_Tight({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sans' });
+const sans = Geist({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sans' });
 const mono = Geist_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-mono' });
 
 export const metadata: Metadata = {

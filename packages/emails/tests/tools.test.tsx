@@ -39,8 +39,17 @@ describe('Meter', () => {
     expect(renderTool(<Meter percent={95} />, mode)).toContain(palette.danger);
   });
 
-  it.each(MODES)('%s: success tone below 75 percent', (mode) => {
-    expect(renderTool(<Meter percent={20} />, mode)).toContain(palette.success);
+  // A bar that is coloured at 20% teaches the reader that colour means nothing.
+  it.each(MODES)('%s: stays neutral below the first threshold', (mode) => {
+    const html = renderTool(<Meter percent={20} />, mode);
+    expect(html).toContain(palette.fillNeutralStrong);
+    expect(html).not.toContain(palette.warning);
+    expect(html).not.toContain(palette.danger);
+  });
+
+  it.each(MODES)('%s: escalates to warning at 75 and danger at 90', (mode) => {
+    expect(renderTool(<Meter percent={80} />, mode)).toContain(palette.warning);
+    expect(renderTool(<Meter percent={95} />, mode)).toContain(palette.danger);
   });
 
   it.each(MODES)('%s: honours an explicit colour override', (mode) => {
@@ -66,10 +75,12 @@ describe('Meter', () => {
 });
 
 describe('StatusBadge', () => {
+  // Text takes the AA step; the saturated hue stays on the fill and the border.
   it.each(MODES)('%s: uppercases the label and applies the tone', (mode) => {
     const html = renderTool(<StatusBadge tone="danger" text="Payment failed" />, mode);
     expect(html).toContain('PAYMENT FAILED');
-    expect(html).toContain(palette.danger);
+    expect(html).toContain(palette.dangerText);
+    expect(html).toContain(palette.dangerTint);
   });
 
   it('email build is a one-cell table so Outlook degrades to a rectangle', () => {

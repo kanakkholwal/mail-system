@@ -1,23 +1,25 @@
+/* Tokens resolved from packages/design/src/index.css, the same source the
+   templates compile against, so the gallery and its contents agree. */
 :root {
-  --ink: #0b0b0f;
-  --ink-soft: #2a2d36;
-  --body: #4a4f5a;
-  --muted: #6a7180;
-  --faint: #aeb4bf;
-  --hairline: #e7e8ec;
-  --hairline-soft: #f0f1f4;
+  --ink: #1a1a1a;
+  --ink-soft: #1a1a1a;
+  --body: #6b7280;
+  --muted: #6b7280;
+  --faint: #868686;
+  --hairline: #e1e1e1;
+  --hairline-soft: #ededed;
   --surface: #ffffff;
-  --canvas: #f7f7f9;
-  --raised: #fbfbfc;
-  --accent: #1f4bf5;
-  --accent-tint: #eef2fe;
-  --success: #0e7c5a;
-  --warning: #9a5b00;
-  --danger: #c0293f;
-  --danger-tint: #fdeef0;
+  --canvas: #f9f8f7;
+  --raised: #fafafa;
+  --accent: #2a5cda;
+  --accent-tint: #e6f2ff;
+  --success: #008900;
+  --warning: #ce4c00;
+  --danger: #de3136;
+  --danger-tint: #ffe9e6;
 
-  --radius: 10px;
-  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-sm: 8px;
   --rail: 384px;
   --shell: 1360px;
 
@@ -26,22 +28,22 @@
 }
 
 :root[data-theme='dark'] {
-  --ink: #f4f5f7;
-  --ink-soft: #d8dce4;
-  --body: #c3c8d2;
-  --muted: #949ba8;
-  --faint: #666d7a;
-  --hairline: #2b2e36;
-  --hairline-soft: #22252c;
-  --surface: #16181d;
-  --canvas: #0d0e11;
-  --raised: #1b1e24;
-  --accent: #7d96ff;
-  --accent-tint: #1b2340;
-  --success: #4ecfa4;
-  --warning: #e0a34a;
-  --danger: #ff8095;
-  --danger-tint: #35191f;
+  --ink: #f0f0f0;
+  --ink-soft: #f0f0f0;
+  --body: #8c8c8c;
+  --muted: #8c8c8c;
+  --faint: #717171;
+  --hairline: #333333;
+  --hairline-soft: #2e2e2e;
+  --surface: #262626;
+  --canvas: #0d0d0d;
+  --raised: #1f1f1f;
+  --accent: #6c9bfe;
+  --accent-tint: #131e37;
+  --success: #00a400;
+  --warning: #e86421;
+  --danger: #fb504e;
+  --danger-tint: #321614;
 }
 
 *,
@@ -72,7 +74,7 @@ h4 {
   margin: 0;
   color: var(--ink);
   font-weight: 600;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
 }
 

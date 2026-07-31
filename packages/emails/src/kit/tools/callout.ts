@@ -3,7 +3,7 @@ import { esc } from '../../lib/html.js';
 import { fonts, palette, radius } from '../tokens.js';
 
 const TONES = {
-  neutral: { border: palette.hairlineStrong, bg: palette.canvas, fg: palette.body, rule: palette.faint },
+  neutral: { border: palette.hairline, bg: palette.canvas, fg: palette.body, rule: palette.hairlineStrong },
   info: { border: palette.accentTint, bg: palette.accentTint, fg: palette.inkSoft, rule: palette.accent },
   success: { border: palette.successTint, bg: palette.successTint, fg: palette.inkSoft, rule: palette.success },
   warning: { border: palette.warningTint, bg: palette.warningTint, fg: palette.inkSoft, rule: palette.warning },

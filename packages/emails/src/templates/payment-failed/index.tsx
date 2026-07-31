@@ -69,8 +69,9 @@ export default defineTemplate<PaymentFailedProps>({
           ...ledgerAmount({
             label: 'Amount outstanding',
             amount: money(props.amount, props.currency, locale),
+            // The badge already says 'Declined'. Colour is not the only carrier,
+            // and #EF4444 measures 3.76:1 as text.
             meta: props.plan,
-            tone: palette.danger,
           }),
           cta({
             ctx,

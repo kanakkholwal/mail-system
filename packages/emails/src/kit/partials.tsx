@@ -29,9 +29,9 @@ export function brandHeader(ctx: Ctx, options: { align?: 'left' | 'center' } = {
 }
 
 function wordmark(ctx: Ctx, align: 'left' | 'center'): ReactElement {
-  const color = ctx.branding.primaryColor ?? palette.ink;
+  const color = palette.ink;
   return caption(
-    `<a class="${hook.invertInk}" href="${ctx.branding.websiteUrl}" style="color:${color};text-decoration:none;font-size:17px;font-weight:700;letter-spacing:-0.014em;">${ctx.branding.name}</a>`,
+    `<a class="${hook.invertInk}" href="${ctx.branding.websiteUrl}" style="color:${color};text-decoration:none;font-size:17px;font-weight:600;letter-spacing:-0.02em;">${ctx.branding.name}</a>`,
     { align, gap: space.none, key: 'wordmark' },
   );
 }

@@ -29,7 +29,7 @@ const cellBase = 'font-size:13px;line-height:150%;padding:13px 0;vertical-align:
 const figureBase = `font-family:${fonts.mono.value};${cellBase}text-align:right;font-variant-numeric:tabular-nums;`;
 
 function head(): string {
-  const base = `font-family:${fonts.sans.value};font-size:10px;font-weight:700;letter-spacing:.085em;color:${palette.muted};padding:0 0 10px 0;border-bottom:1px solid ${palette.hairlineStrong};`;
+  const base = `font-family:${fonts.sans.value};font-size:10px;font-weight:700;letter-spacing:.085em;color:${palette.muted};padding:0 0 10px 0;border-bottom:1px solid ${palette.hairline};`;
   const th = (text: string, index: number, align: 'left' | 'right') =>
     `<th class="${hook.dim} ${hook.rule}" width="${COLS[index]}" align="${align}" style="${base}text-align:${align};">${text}</th>`;
   return `<thead><tr>${th('DESCRIPTION', 0, 'left')}${th('QTY', 1, 'right')}${th('RATE', 2, 'right')}${th('AMOUNT', 3, 'right')}</tr></thead>`;
@@ -65,7 +65,7 @@ function totals(rows: TotalRow[], mode: Mode): string {
     .map((row) => {
       const strong = row.emphasis === true;
       const pad = strong ? '13px' : '7px';
-      const topRule = strong ? `border-top:2px solid ${palette.ink};` : '';
+      const topRule = strong ? `border-top:1px solid ${palette.hairlineStrong};` : '';
       const labelStyle = `font-family:${fonts.sans.value};font-size:${strong ? '14px' : '13px'};font-weight:${strong ? 700 : 400};color:${strong ? palette.ink : palette.body};padding:${pad} 12px ${pad} 0;${topRule}`;
       const valueColor = row.credit === true ? palette.success : palette.ink;
       const valueStyle = `font-family:${fonts.mono.value};font-size:${strong ? '18px' : '13px'};font-weight:${strong ? 700 : 500};color:${valueColor};text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding:${pad} 0;${topRule}`;

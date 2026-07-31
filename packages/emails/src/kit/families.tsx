@@ -12,11 +12,11 @@ import { type Ctx, ctaColor } from './context.js';
  * a 60ch line under a centred heading reads as a document, not as a prompt.
  */
 export function focusedHeader(ctx: Ctx): ReactElement {
-  const color = ctx.branding.primaryColor ?? palette.ink;
+  const color = palette.ink;
   return band(
     [
       caption(
-        `<a class="${hook.invertInk}" href="${ctx.branding.websiteUrl}" style="color:${color};text-decoration:none;font-size:15px;font-weight:700;letter-spacing:-0.012em;">${ctx.branding.name}</a>`,
+        `<a class="${hook.invertInk}" href="${ctx.branding.websiteUrl}" style="color:${color};text-decoration:none;font-size:15px;font-weight:600;letter-spacing:-0.02em;">${ctx.branding.name}</a>`,
         { align: 'center', gap: space.none, key: 'wm' },
       ),
     ],
@@ -75,7 +75,7 @@ export function focusedNote(html: string, key = 'fn'): ReactElement {
 
 /** Short centred rule. Closes the focused block without the weight of a full divider. */
 export function focusedRule(key = 'fr'): ReactElement {
-  return divider({ width: '48px', color: palette.hairlineStrong, gap: space.xl, key });
+  return divider({ width: '48px', color: palette.hairline, gap: space.xl, key });
 }
 
 /**
@@ -110,14 +110,14 @@ export function panel(children: ReactNode, options: { key?: string } = {}): Reac
 /* --- Ledger: billing and receipts --- */
 
 /**
- * Brand on the left, document identity on the right, closed by a heavy rule.
+ * Brand on the left, document identity on the right, closed by a hairline.
  * That masthead is what makes an invoice read as a record rather than a message.
  */
 export function ledgerMasthead(
   ctx: Ctx,
   options: { docType: string; docNumber: string; key?: string },
 ): ReactElement[] {
-  const brand = ctx.branding.primaryColor ?? palette.ink;
+  const brand = palette.ink;
   return [
     <Row
       key={options.key ?? 'ledger-masthead'}
@@ -128,7 +128,7 @@ export function ledgerMasthead(
     >
       <Column padding={`0px ${space.sm} 0px ${layout.gutter}`}>
         {caption(
-          `<a class="${hook.invertInk}" href="${ctx.branding.websiteUrl}" style="color:${brand};text-decoration:none;font-size:17px;font-weight:700;letter-spacing:-0.014em;">${ctx.branding.name}</a>`,
+          `<a class="${hook.invertInk}" href="${ctx.branding.websiteUrl}" style="color:${brand};text-decoration:none;font-size:17px;font-weight:600;letter-spacing:-0.02em;">${ctx.branding.name}</a>`,
           { gap: space.none, key: 'lm-brand' },
         )}
       </Column>
@@ -140,7 +140,7 @@ export function ledgerMasthead(
         )}
       </Column>
     </Row>,
-    band([divider({ color: palette.ink, gap: space.none, key: 'lr' })], {
+    band([divider({ color: palette.hairline, gap: space.none, key: 'lr' })], {
       pt: space.none,
       pb: space.none,
       key: 'ledger-rule',
@@ -183,31 +183,24 @@ export function ledgerAmount(options: {
 /** Section rule with a tracked label sitting on it, the way a statement divides itself. */
 export function ledgerSection(name: string, key = 'ls'): ReactElement[] {
   return [
-    divider({ color: palette.hairlineStrong, gap: space.md, key: `${key}-d` }),
+    divider({ color: palette.hairline, gap: space.md, key: `${key}-d` }),
     label(name, { gap: space.sm, key: `${key}-l` }),
   ];
 }
 
 /* --- Editorial: lifecycle, engagement and commerce --- */
 
-/** The mark that opens every editorial template: a short heavy rule, then a tracked kicker. */
+/**
+ * Eyebrow. Every editorial section with a header opens with one. Neutral by
+ * default: an eyebrow labels a section, it does not compete with the action.
+ */
 export function editorialKicker(value: string, options: { color?: string; key?: string } = {}): ReactElement[] {
   const { color = palette.muted, key = 'ek' } = options;
   return [
     <Paragraph
-      key={`${key}-rule`}
-      html={`<span style="display:inline-block;width:40px;height:3px;background-color:${palette.ink};line-height:3px;font-size:0;">&nbsp;</span>`}
-      fontFamily={fonts.sans}
-      fontSize="3px"
-      lineHeight="3px"
-      color={palette.ink}
-      textAlign="left"
-      containerPadding={`0px 0px ${space.md} 0px`}
-    />,
-    <Paragraph
       key={`${key}-text`}
       html={value.toUpperCase()}
-      fontFamily={fonts.mono}
+      fontFamily={fonts.sans}
       fontSize={type.kicker.fontSize}
       lineHeight={type.kicker.lineHeight}
       letterSpacing={type.kicker.letterSpacing}

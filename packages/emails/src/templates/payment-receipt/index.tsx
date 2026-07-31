@@ -107,8 +107,9 @@ function receiptMail(props: PaymentReceiptProps, ctx: Ctx, bits: MailBits): Reac
         ...ledgerAmount({
           label: 'Amount paid',
           amount: bits.fmt(props.amount),
+          // The badge carries 'received'; the figure stays foreground. Status colour
+          // is for status, and green text measures 3.01:1 on white.
           meta: `Charged to ${bits.method}`,
-          tone: palette.success,
         }),
       ],
       { pt: space.lg, pb: space.none, key: 'hero' },

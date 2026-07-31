@@ -5,7 +5,9 @@ import { fonts, palette, radius } from '../tokens.js';
 function parts(values: Record<string, unknown>) {
   const raw = Number(values.percent ?? 0);
   const pct = Math.max(0, Math.min(100, Number.isFinite(raw) ? raw : 0));
-  const auto = pct >= 90 ? palette.danger : pct >= 75 ? palette.warning : palette.success;
+  // Fills stay neutral and escalate only on a real threshold, so the colour of a
+  // bar always means something. A bar that is green at 12% says nothing.
+  const auto = pct >= 90 ? palette.danger : pct >= 75 ? palette.warning : palette.fillNeutralStrong;
   return {
     pct,
     // Truthiness, not ??: the tool's default `color` is an empty string, which
